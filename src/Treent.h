@@ -145,7 +145,7 @@ template <typename ... TreeComponents>
 template <typename C>
 void Treent::attachChildComponent(const TreentRef &child)
 {
-  _entity.component<C>->appendChild(child->component<C>());
+  C::attachToParent(child->component<C>(), _entity.component<C>());
 }
 
 template <typename ... TreeComponents>

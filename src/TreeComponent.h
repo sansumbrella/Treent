@@ -16,16 +16,19 @@ struct TreeComponent
 public:
   using Ref = typename Derived::Handle;
 
-  void appendChild (const Ref &child);
+  /// Associate a child component with a parent component.
+  /// Static since we can't generate component handles from this.
+  static void attachToParent(const Ref &child, const Ref &parent);
+
   void removeChild (Derived &child);
   void detachFromParent ();
 
   /// Visit all children depth-first.
   /// Calls updateChild(Derived &) for each.
-  void traverseDown();
+  void descend();
   /// Visit all parents (depth-only).
   /// Calls updateParent(Derived &) for each.
-  void traverseUp();
+  void ascend();
 
   /// Cast to derived type.
   Derived& self() const { return static_cast<Derived&>(*this); }
@@ -38,9 +41,10 @@ private:
 #pragma mark - TreeComponent Template Implementation
 
 template <typename Derived>
-void TreeComponent::appendChild (const Ref &child)
+void TreeComponent::attachToParent (const Ref &child, const Ref &parent)
 {
-  _children.push_back(child);
+  child->_parent = parent;
+  parent->_children.push_back(child);
 }
 
 template <typename Derived>
@@ -67,22 +71,22 @@ void TreeComponent::detachFromParent()
 }
 
 template <typename Derived>
-void TreeComponent::traverseDown()
+void TreeComponent::descend()
 {
   for (auto &c : _children)
   {
     self().updateChild(*c.get());
-    c->traverseDown();
+    c->descend();
   }
 }
 
 template <typename Derived>
-void TreeComponent::traverseUp()
+void TreeComponent::ascend()
 {
   if (_parent)
   {
     self().updateParent(*c.get());
-    _parent->traverseUp();
+    _parent->ascend();
   }
 }
 
