@@ -1,0 +1,4 @@
+[submodule "EntityX"]
+	path = lib/entityx
+	url = git@github.com:alecthomas/entityx.git
+	branch = master
