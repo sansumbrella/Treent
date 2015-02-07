@@ -11,7 +11,7 @@ namespace treent
 /// Does not detach in destructor since that is handled only where needed by a Treent.
 /// (top level is removed from its parent, others are safe to destroy since only ref is through top)
 template <typename Derived>
-struct TreeComponent
+struct TreeComponent : public entityx::Component<TreeComponent<Derived>>
 {
 public:
   using Ref = typename Derived::Handle;
