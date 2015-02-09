@@ -6,6 +6,8 @@ namespace treent
 
 ///
 /// Treent manages a tree of entities that share a common set of tree components.
+/// Use to create prefab-like objects in your source code.
+/// Stores the entity manager so it can create its entity and child entities.
 ///
 template <typename ... TreeComponents>
 class Treent
@@ -13,7 +15,7 @@ class Treent
 public:
   using TreentRef = std::shared_ptr<Treent>;
 
-  explicit Treent (entityx::Entity entity);
+  explicit Treent (entityx::EntityManager &entities);
   virtual ~Treent ();
 
   //
@@ -26,16 +28,23 @@ public:
   // Tree growing/pruning methods.
   //
 
+  /// Creates and returns a treent node as a child of this Treent.
   TreentRef createChild ();
+  /// Creates and returns a treent node as a child of this Treent.
+  /// Args are passed to the constructor after the entity manager.
+  template <typename TreentType, typename ... Args>
+  std::shared_ptr<TreentType> createChild ();
+
   void      appendChild (const TreentRef &child);
-  void      removeChild (Treent *child);
   void      removeChild (const TreentRef &child) { removeChild(child.get()); }
+  void      removeChild (Treent *child);
 
   /// Remove the Treent from its parent.
   /// If there are no other references, this destroys the Treent.
   void      destroy () { if (_parent) { _parent->remove(this); } }
 
 private:
+  entityx::EntityManager  &_entities;
   entityx::Entity         _entity;
   std::vector<TreentRef>  _children;
   Treent*                 _parent = nullptr;
@@ -59,8 +68,9 @@ private:
 #pragma mark - Treent Template Implementation
 
 template <typename ... TreeComponents>
-Treent::Treent(entityx::Entity entity)
-: _entity(entity)
+Treent::Treent(entityx::EntityManager &entities)
+: _entities(entities),
+  _entity(entities.create())
 {
   assignComponents<TreeComponents>();
   _entity.assign<TreentNodeComponent>(this);
@@ -69,6 +79,9 @@ Treent::Treent(entityx::Entity entity)
 template <typename ... TreeComponents>
 Treent::~Treent()
 {
+  // maybe prefer assert to conditional check;
+  // though user _could_ invalidate entity manually, should be discouraged when using Treent.
+  assert(_entity);
   if (_entity)
   {
     _entity.destroy();
