@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "treent/TreeComponent.h"
 
 namespace treent

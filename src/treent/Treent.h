@@ -1,5 +1,10 @@
 
+#pragma once
+
+#include "entityx/Entity.h"
 #include "TreentNodeComponent.h"
+
+#include "2d/Components.h"
 
 namespace treent
 {
@@ -68,19 +73,22 @@ private:
   void      detachComponents ();
 };
 
+template <typename ... TreeComponents>
+using TreentRef = std::shared_ptr<Treent<TreeComponents...>>;
+
 #pragma mark - Treent Template Implementation
 
 template <typename ... TreeComponents>
-Treent::Treent(entityx::EntityManager &entities)
+Treent<TreeComponents...>::Treent(entityx::EntityManager &entities)
 : _entities(entities),
   _entity(entities.create())
 {
-  assignComponents<TreeComponents>();
-  _entity.assign<TreentNodeComponent>(this);
+  assignComponents<TransformComponent, StyleComponent>();
+//  _entity.assign<TreentNodeComponent>(this);
 }
 
 template <typename ... TreeComponents>
-Treent::~Treent()
+Treent<TreeComponents...>::~Treent()
 {
   // maybe prefer assert to conditional check;
   // though user _could_ invalidate entity manually, should be discouraged when using Treent.
@@ -102,24 +110,24 @@ Treent::~Treent()
 }
 
 template <typename ... TreeComponents>
-TrentRef Treent::createChild ()
+std::shared_ptr<Treent<TreeComponents...>> Treent<TreeComponents...>::createChild ()
 {
-  auto child = std::make_shared<Treent>();
+  auto child = std::make_shared<Treent<TreeComponents...>>();
 
   attachChild(child);
   return child;
 }
 
 template <typename ... TreeComponents>
-void Treent::attachChild (const TreentRef &child)
+void Treent<TreeComponents...>::attachChild (const TreentRef &child)
 {
   child->_parent = this;
-  attachChildComponents<TreeComponents>(child);
+  attachChildComponents<TreeComponents...>(child);
   _children.push_back(child);
 }
 
 template <typename ... TreeComponents>
-void Treent::appendChild (const TreentRef &child)
+void Treent<TreeComponents...>::appendChild (const TreentRef &child)
 {
   if (child->_parent)
   {
@@ -137,9 +145,9 @@ void Treent::appendChild (const TreentRef &child)
 }
 
 template <typename ... TreeComponents>
-void Treent::removeChild (Treent *child)
+void Treent<TreeComponents...>::removeChild (Treent *child)
 {
-  child->detachComponents<TreeComponents>();
+  child->detachComponents<TreeComponents...>();
 
   auto comp = [child] (const TreentRef &c) {
     return c.get() == child;
@@ -149,14 +157,14 @@ void Treent::removeChild (Treent *child)
 
 template <typename ... TreeComponents>
 template <typename C>
-void Treent::assignComponent()
+void Treent<TreeComponents...>::assignComponent()
 {
   _entity.assign<C>();
 }
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent::assignComponents()
+void Treent<TreeComponents...>::assignComponents()
 {
   assignComponent<C1>();
   return assignComponents<C2, Components ...>();
@@ -164,14 +172,14 @@ void Treent::assignComponents()
 
 template <typename ... TreeComponents>
 template <typename C>
-void Treent::attachChildComponent(const TreentRef &child)
+void Treent<TreeComponents...>::attachChildComponent(const TreentRef &child)
 {
-  C::attachToParent(child->component<C>(), _entity.component<C>());
+  C::attachToParent(child->entity().template component<C>(), _entity.component<C>());
 }
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent::attachChildComponents(const TreentRef &child)
+void Treent<TreeComponents...>::attachChildComponents(const TreentRef &child)
 {
   attachChildComponent<C1>(child);
   return attachChildComponents<C2, Components ...>(child);
@@ -179,14 +187,14 @@ void Treent::attachChildComponents(const TreentRef &child)
 
 template <typename ... TreeComponents>
 template <typename C>
-void Treent::detachComponent()
+void Treent<TreeComponents...>::detachComponent()
 {
-  _entity.component<C>->detachFromParent();
+  _entity.component<C>()->detachFromParent();
 }
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent::detachComponents()
+void Treent<TreeComponents...>::detachComponents()
 {
   detachComponent<C1>();
   return detachComponents<C2, Components ...>();

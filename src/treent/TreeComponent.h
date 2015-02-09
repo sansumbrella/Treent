@@ -1,4 +1,8 @@
 
+#pragma once
+
+#include "entityx/Entity.h"
+
 namespace treent
 {
 
@@ -14,13 +18,16 @@ template <typename Derived>
 struct TreeComponent : public entityx::Component<TreeComponent<Derived>>
 {
 public:
-  using Ref = typename Derived::Handle;
+  /// Cast to derived type.
+  Derived& self() { return static_cast<Derived&>(*this); }
+
+  using Ref = entityx::ComponentHandle<Derived>;
 
   /// Associate a child component with a parent component.
   /// Static since we can't generate component handles from this.
-  static void attachToParent (const Ref &child, const Ref &parent);
+  static void attachToParent (Ref child, Ref parent);
 
-  void removeChild (Derived &child);
+  void removeChild (Derived *child);
   void detachFromParent ();
 
   /// Visit all children depth-first.
@@ -30,9 +37,6 @@ public:
   /// Calls updateParent(Derived &) for each.
   void ascend();
 
-  /// Cast to derived type.
-  Derived& self() const { return static_cast<Derived&>(*this); }
-
 private:
   Ref               _parent;
   std::vector<Ref>  _children;
@@ -40,38 +44,38 @@ private:
 
 #pragma mark - TreeComponent Template Implementation
 
-template <typename Derived>
-void TreeComponent::attachToParent (const Ref &child, const Ref &parent)
+template <typename D>
+void TreeComponent<D>::attachToParent (Ref child, Ref parent)
 {
   child->_parent = parent;
   parent->_children.push_back(child);
 }
 
-template <typename Derived>
-void TreeComponent::removeChild (Derived &child)
+template <typename D>
+void TreeComponent<D>::removeChild (D *child)
 {
-  assert(child._parent.get() == this);
-  child._parent = nullptr;
+  assert(child->_parent.get() == &self());
+  child->_parent = Ref(); // make invalid
 
-  auto comp = [&child] (const Ref &b) {
-      return *b.get() == child;
+  auto comp = [child] (Ref &b) {
+      return b.get() == child;
   };
 
   _children.erase(std::remove_if(_children.begin(), _children.end(), comp), _children.end());
 }
 
-template <typename Derived>
-void TreeComponent::detachFromParent()
+template <typename D>
+void TreeComponent<D>::detachFromParent()
 {
   if (_parent)
   {
     self().compose(*_parent.get());
-    _parent->removeChild(*this);
+    _parent->removeChild(&self());
   }
 }
 
-template <typename Derived>
-void TreeComponent::descend()
+template <typename D>
+void TreeComponent<D>::descend()
 {
   for (auto &c : _children)
   {
@@ -80,8 +84,8 @@ void TreeComponent::descend()
   }
 }
 
-template <typename Derived>
-void TreeComponent::ascend()
+template <typename D>
+void TreeComponent<D>::ascend()
 {
   if (_parent)
   {

@@ -1,4 +1,8 @@
 
+#pragma once
+
+#include "entityx/Entity.h"
+
 namespace treent
 {
 
@@ -7,7 +11,7 @@ namespace treent
 /// In case you want to destroy the node in an update function.
 ///
 template <typename TreeType>
-struct TreentNodeComponent : public <entityx::Component>
+struct TreentNodeComponent : public entityx::Component<TreentNodeComponent<TreeType>>
 {
   explicit TreentNodeComponent(TreeType *treent)
   : _treent(treent)

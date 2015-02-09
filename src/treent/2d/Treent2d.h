@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "treent/Treent.h"
 #include "Components.h"
 
 namespace treent
