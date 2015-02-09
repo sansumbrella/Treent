@@ -65,7 +65,7 @@ void TreeComponent::detachFromParent()
 {
   if (_parent)
   {
-    self().compose(*_parent);
+    self().compose(*_parent.get());
     _parent->removeChild(*this);
   }
 }
@@ -85,7 +85,7 @@ void TreeComponent::ascend()
 {
   if (_parent)
   {
-    self().updateParent(*c.get());
+    self().updateParent(*_parent.get());
     _parent->ascend();
   }
 }

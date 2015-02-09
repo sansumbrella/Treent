@@ -22,7 +22,7 @@ public:
   // TODO: Mirror Entity methods. (add/remove components, getOrAssign convenience.)
   //
 
-  entityx::Entity entity() { return _entity; }
+  entityx::Entity& entity() { return _entity; }
 
   //
   // Tree growing/pruning methods.
