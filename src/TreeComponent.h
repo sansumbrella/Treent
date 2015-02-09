@@ -18,7 +18,7 @@ public:
 
   /// Associate a child component with a parent component.
   /// Static since we can't generate component handles from this.
-  static void attachToParent(const Ref &child, const Ref &parent);
+  static void attachToParent (const Ref &child, const Ref &parent);
 
   void removeChild (Derived &child);
   void detachFromParent ();

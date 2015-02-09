@@ -49,6 +49,9 @@ private:
   std::vector<TreentRef>  _children;
   Treent*                 _parent = nullptr;
 
+  // Create necessary component connections and store reference to child.
+  void      attachChild (const TreentRef &child);
+
   template <typename C>
   void      assignComponent ();
   template <typename C1, typename C2, typename ... Components>
@@ -103,16 +106,23 @@ TrentRef Treent::createChild ()
 {
   auto child = std::make_shared<Treent>();
 
+  attachChild(child);
+  return child;
+}
+
+template <typename ... TreeComponents>
+void Treent::attachChild (const TreentRef &child)
+{
   child->_parent = this;
   attachChildComponents<TreeComponents>(child);
   _children.push_back(child);
-  return child;
 }
 
 template <typename ... TreeComponents>
 void Treent::appendChild (const TreentRef &child)
 {
-  if (child->_parent) {
+  if (child->_parent)
+  {
     if (child->_parent == this)
     {
       return;
@@ -123,9 +133,7 @@ void Treent::appendChild (const TreentRef &child)
     }
   }
 
-  attachChildComponents<TreeComponents>(child);
-  _children.push_back(child);
-
+  attachChild(child);
 }
 
 template <typename ... TreeComponents>
