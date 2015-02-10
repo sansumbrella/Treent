@@ -64,10 +64,10 @@ private:
   }
 
   template <typename C1, typename C2, typename ... Cs>
-  void      assignComponents ()
+  void      assignComponent ()
   {
     assignComponent<C1>();
-    assignComponents<C2, Cs...>();
+    assignComponent<C2, Cs...>();
   }
 
   template <typename C>
@@ -91,7 +91,7 @@ Treent<TreeComponents...>::Treent(entityx::EntityManager &entities)
 : _entities(entities),
   _entity(entities.create())
 {
-  assignComponents<TreeComponents...>();
+  assignComponent<TreeComponents...>();
 //  _entity.assign<TreentNodeComponent>(this);
 }
 
