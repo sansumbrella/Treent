@@ -1,0 +1,112 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Blocks">
+      <UniqueIdentifier>{D3E8E859-D650-4C2E-87A4-B014783EB81A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent">
+      <UniqueIdentifier>{C42FE02E-0627-4DA3-AD10-EF5C3B5E4BE8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\lib">
+      <UniqueIdentifier>{AA6239F7-1AE7-4120-919E-795D1CB8D244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\lib\entityx">
+      <UniqueIdentifier>{47D50DF7-9B9F-406B-AF99-D9A045ADE061}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\lib\entityx\entityx">
+      <UniqueIdentifier>{7DADD264-BBC5-41B2-8073-0C18E64F6882}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\lib\entityx\entityx\help">
+      <UniqueIdentifier>{F7AB5032-CCA2-4F7A-8628-CC002CF73955}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\src">
+      <UniqueIdentifier>{9B4E87DA-96A1-4355-AEFC-17705ADCABA4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\src\entityx">
+      <UniqueIdentifier>{69F63B68-A231-4A6E-834A-C83E8DD2F3CD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\src\treent">
+      <UniqueIdentifier>{F506D2AF-6BE2-40A0-A7D7-60858F807339}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Blocks\Treent\src\treent\2d">
+      <UniqueIdentifier>{2FE3A7A2-80CC-42F4-9FB2-3980A8AF5BD1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Treent2dApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Treent2dApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\entityx\entityx\Entity.h">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\entityx\entityx\entityx.h">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\entityx\entityx\Event.h">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\entityx\entityx\quick.h">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\lib\entityx\entityx\System.h">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\..\lib\entityx\entityx\Entity.cc">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\entityx\entityx\Event.cc">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\entityx\entityx\System.cc">
+      <Filter>Blocks\Treent\lib\entityx\entityx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\entityx\entityx\help\Pool.cc">
+      <Filter>Blocks\Treent\lib\entityx\entityx\help</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\..\src\entityx\config.h">
+      <Filter>Blocks\Treent\src\entityx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\treent\TreeComponent.h">
+      <Filter>Blocks\Treent\src\treent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\treent\Treent.h">
+      <Filter>Blocks\Treent\src\treent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\treent\TreentNodeComponent.h">
+      <Filter>Blocks\Treent\src\treent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\treent\2d\Components.h">
+      <Filter>Blocks\Treent\src\treent\2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\treent\2d\Treent2d.h">
+      <Filter>Blocks\Treent\src\treent\2d</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
