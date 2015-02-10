@@ -58,9 +58,17 @@ private:
   void      attachChild (const TreentRef &child);
 
   template <typename C>
-  void      assignComponent ();
+  void      assignComponent ()
+  {
+    _entity.assign<C>();
+  }
+
   template <typename C1, typename C2, typename ... Components>
-  void      assignComponents ();
+  void      assignComponents ()
+  {
+    assignComponent<C1>();
+    assignComponents<C2, Components...>();
+  }
 
   template <typename C>
   void      attachChildComponent (const TreentRef &child);
@@ -83,7 +91,7 @@ Treent<TreeComponents...>::Treent(entityx::EntityManager &entities)
 : _entities(entities),
   _entity(entities.create())
 {
-  assignComponents<TransformComponent, StyleComponent>();
+  assignComponents<TreeComponents...>();
 //  _entity.assign<TreentNodeComponent>(this);
 }
 
@@ -153,21 +161,6 @@ void Treent<TreeComponents...>::removeChild (Treent *child)
     return c.get() == child;
   };
   _children.erase(std::remove_if(_children.begin(), _children.end(), comp), _children.end());
-}
-
-template <typename ... TreeComponents>
-template <typename C>
-void Treent<TreeComponents...>::assignComponent()
-{
-  _entity.assign<C>();
-}
-
-template <typename ... TreeComponents>
-template <typename C1, typename C2, typename ... Components>
-void Treent<TreeComponents...>::assignComponents()
-{
-  assignComponent<C1>();
-  return assignComponents<C2, Components ...>();
 }
 
 template <typename ... TreeComponents>
