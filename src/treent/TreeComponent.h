@@ -71,6 +71,7 @@ void TreeComponent<D>::detachFromParent()
   {
     self().compose(*_parent.get());
     _parent->removeChild(&self());
+    _parent = Ref();
   }
 }
 
