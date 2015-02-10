@@ -37,7 +37,7 @@
 		0C9A043A3EAC411B842E8312 /* Treent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Treent.h; path = ../../../src/treent/Treent.h; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		15EFAD78488A46DEA26E93D7 /* Treent2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Treent2d.h; path = ../../../src/treent/2d/Treent2d.h; sourceTree = "<group>"; };
-		198D570F60244EF498151CCC /* Treent2dApp.cpp */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.c.cpp; name = Treent2dApp.cpp; path = ../src/Treent2dApp.cpp; sourceTree = "<group>"; tabWidth = 4; usesTabs = 1; };
+		198D570F60244EF498151CCC /* Treent2dApp.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.cpp; name = Treent2dApp.cpp; path = ../src/Treent2dApp.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		1FF9EBD7B13F4A88AB1FA1B6 /* Treent2d_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = Treent2d_Prefix.pch; sourceTree = "<group>"; };
 		259B8BAD215B46F185475406 /* entityx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = entityx.h; path = ../../../lib/entityx/entityx/entityx.h; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -335,6 +335,7 @@
 		C01FCF4B08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
@@ -360,6 +361,7 @@
 		C01FCF4C08A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";

@@ -63,11 +63,11 @@ private:
     _entity.assign<C>();
   }
 
-  template <typename C1, typename C2, typename ... Components>
+  template <typename C1, typename C2, typename ... Cs>
   void      assignComponents ()
   {
     assignComponent<C1>();
-    assignComponents<C2, Components...>();
+    assignComponents<C2, Cs...>();
   }
 
   template <typename C>
