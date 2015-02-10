@@ -25,11 +25,8 @@ void Treent2dApp::setup()
   entityx::EntityManager entities(events);
 
   auto ent = make_shared<treent::Treent2D>(entities);
-//  auto c = ent->createChild();
-//  ent->removeChild(c);
-
-  svg::Node;
-
+  auto c = ent->createChild();
+  ent->removeChild(c);
 }
 
 void Treent2dApp::mouseDown( MouseEvent event )

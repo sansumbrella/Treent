@@ -73,12 +73,12 @@ private:
   template <typename C>
   void      attachChildComponent (const TreentRef &child);
   template <typename C1, typename C2, typename ... Components>
-  void      attachChildComponents (const TreentRef &child);
+  void      attachChildComponent (const TreentRef &child);
 
   template <typename C>
   void      detachComponent ();
   template <typename C1, typename C2, typename ... Components>
-  void      detachComponents ();
+  void      detachComponent ();
 };
 
 template <typename ... TreeComponents>
@@ -120,7 +120,7 @@ Treent<TreeComponents...>::~Treent()
 template <typename ... TreeComponents>
 std::shared_ptr<Treent<TreeComponents...>> Treent<TreeComponents...>::createChild ()
 {
-  auto child = std::make_shared<Treent<TreeComponents...>>();
+  auto child = std::make_shared<Treent<TreeComponents...>>(_entities);
 
   attachChild(child);
   return child;
@@ -130,7 +130,7 @@ template <typename ... TreeComponents>
 void Treent<TreeComponents...>::attachChild (const TreentRef &child)
 {
   child->_parent = this;
-  attachChildComponents<TreeComponents...>(child);
+  attachChildComponent<TreeComponents...>(child);
   _children.push_back(child);
 }
 
@@ -155,7 +155,7 @@ void Treent<TreeComponents...>::appendChild (const TreentRef &child)
 template <typename ... TreeComponents>
 void Treent<TreeComponents...>::removeChild (Treent *child)
 {
-  child->detachComponents<TreeComponents...>();
+  child->detachComponent<TreeComponents...>();
 
   auto comp = [child] (const TreentRef &c) {
     return c.get() == child;
@@ -172,10 +172,10 @@ void Treent<TreeComponents...>::attachChildComponent(const TreentRef &child)
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent<TreeComponents...>::attachChildComponents(const TreentRef &child)
+void Treent<TreeComponents...>::attachChildComponent(const TreentRef &child)
 {
   attachChildComponent<C1>(child);
-  return attachChildComponents<C2, Components ...>(child);
+  return attachChildComponent<C2, Components ...>(child);
 }
 
 template <typename ... TreeComponents>
@@ -187,10 +187,10 @@ void Treent<TreeComponents...>::detachComponent()
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent<TreeComponents...>::detachComponents()
+void Treent<TreeComponents...>::detachComponent()
 {
   detachComponent<C1>();
-  return detachComponents<C2, Components ...>();
+  return detachComponent<C2, Components ...>();
 }
 
 } // namespace treent
