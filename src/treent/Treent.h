@@ -4,8 +4,6 @@
 #include "entityx/Entity.h"
 #include "TreentNodeComponent.h"
 
-#include "2d/Components.h"
-
 namespace treent
 {
 
