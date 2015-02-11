@@ -15,7 +15,7 @@ namespace treent
 /// Does not detach in destructor since that is handled only where needed by a Treent.
 /// (top level is removed from its parent, others are safe to destroy since only ref is through top)
 template <typename Derived>
-struct TreeComponent : public entityx::Component<TreeComponent<Derived>>
+struct TreeComponent : public entityx::Component<Derived>
 {
 public:
   /// Cast to derived type.
@@ -36,6 +36,9 @@ public:
   /// Visit all parents (depth-only).
   /// Calls updateParent(Derived &) for each.
   void ascend();
+
+	bool isRoot() { return ! _parent; }
+	bool isLeaf() { return _children.empty(); }
 
 private:
   Ref               _parent;
