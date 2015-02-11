@@ -11,6 +11,20 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+class ChildClass : public treent::Treent2D
+{
+public:
+  ChildClass (entityx::EntityManager &entities, const std::string &name)
+  : Treent(entities),
+    _name (name)
+  {}
+
+  const std::string& getName() const { return _name; }
+
+private:
+  std::string _name;
+};
+
 class Treent2dApp : public AppNative {
   public:
 	void setup() override;
@@ -25,13 +39,18 @@ void Treent2dApp::setup()
   entityx::EntityManager entities(events);
 
   auto ent = make_shared<treent::Treent2D>(entities);
-  auto c = ent->createChild();
+  auto &c = ent->createChild();
 
-  assert( c->entity().has_component<treent::TransformComponent>() );
-  assert( c->entity().has_component<treent::StyleComponent>() );
+  assert( c.entity().has_component<treent::TransformComponent>() );
+  assert( c.entity().has_component<treent::StyleComponent>() );
 
-  ent->removeChild(c);
+  auto child = ent->removeChild(&c);
+  ent->appendChild(std::move(child));
 
+  auto &b = c.createChild<ChildClass>("so fair");
+  assert(b.entity().has_component<treent::TransformComponent>());
+  assert(b.entity().has_component<treent::StyleComponent>());
+  assert(b.getName() == "so fair");
 }
 
 void Treent2dApp::mouseDown( MouseEvent event )

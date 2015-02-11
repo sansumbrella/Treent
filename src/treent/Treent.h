@@ -9,6 +9,11 @@
 namespace treent
 {
 
+template <typename ... TreeComponents> class Treent;
+
+template <typename ... TreeComponents>
+using TreentRef = std::unique_ptr<Treent<TreeComponents...>>;
+
 ///
 /// Treent manages a tree of entities that share a common set of tree components.
 /// Use to create prefab-like objects in your source code.
@@ -18,10 +23,15 @@ template <typename ... TreeComponents>
 class Treent
 {
 public:
-  using TreentRef = std::shared_ptr<Treent>;
+  using TreentRef = TreentRef<TreeComponents...>;
 
+  /// Construct a Treent with an EntityManager.
   explicit Treent (entityx::EntityManager &entities);
   virtual ~Treent ();
+
+  /// Treent has unique ownership of entity, so shouldn't be copied.
+  /// Additionally, we get much better compiler errors when doing this explicitly.
+  Treent (const Treent &other) = delete;
 
   //
   // TODO: Mirror Entity methods. (add/remove components, getOrAssign convenience.)
@@ -34,19 +44,27 @@ public:
   //
 
   /// Creates and returns a treent node as a child of this Treent.
-  TreentRef createChild ();
+  Treent& createChild ();
   /// Creates and returns a treent node as a child of this Treent.
   /// Args are passed to the constructor after the entity manager.
-  template <typename TreentType, typename ... Args>
-  std::shared_ptr<TreentType> createChild ();
+  template <typename TreentType, typename ... Parameters>
+  TreentType& createChild (Parameters&& ... parameters);
 
-  void      appendChild (const TreentRef &child);
-  void      removeChild (const TreentRef &child) { removeChild(child.get()); }
-  void      removeChild (Treent *child);
+  /// Appends a child to Treent, transferring ownership to the parent.
+  void      appendChild (TreentRef &&child);
+
+  /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
+  TreentRef removeChild (Treent &child) { return removeChild(&child); }
+  /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
+  TreentRef removeChild (Treent *child);
 
   /// Remove the Treent from its parent.
   /// If there are no other references, this destroys the Treent.
   void      destroy () { if (_parent) { _parent->remove(this); } }
+
+  // Enable iteration over the children (for doing animations on each child with an offset, etc.)
+  typename std::vector<TreentRef>::iterator begin() { return _children.begin(); }
+  typename std::vector<TreentRef>::iterator end() { return _children.end(); }
 
 private:
   entityx::EntityManager  &_entities;
@@ -55,7 +73,7 @@ private:
   Treent*                 _parent = nullptr;
 
   // Create necessary component connections and store reference to child.
-  void      attachChild (const TreentRef &child);
+  void      attachChild (TreentRef &&child);
 
   template <typename C>
   void      assignComponent ()
@@ -81,9 +99,6 @@ private:
   void      detachComponent ();
 };
 
-template <typename ... TreeComponents>
-using TreentRef = std::shared_ptr<Treent<TreeComponents...>>;
-
 #pragma mark - Treent Template Implementation
 
 template <typename ... TreeComponents>
@@ -106,61 +121,62 @@ Treent<TreeComponents...>::~Treent()
     _entity.destroy();
   }
 
-  // In general all the children will be destroyed with the parent.
-  for (auto &c : _children)
-  {
-    // Invalidate possible dangling pointers in case the children are referenced elsewhere and kept alive.
-    // Note that we don't need to detach the component parent handles here, since they are invalidated when the parent component is destroyed.
-    c->_parent = nullptr;
-  }
-
-  // We don't need to remove self from parent, since we wouldn't be destructed if we were still there.
+  // Note: All the children will be destroyed with the parent, since we have unique_ptr's to them. No need to notify.
+  // Also: don't need to notify parent, because we wouldn't be destroyed if it still cared about us.
 }
 
 template <typename ... TreeComponents>
-std::shared_ptr<Treent<TreeComponents...>> Treent<TreeComponents...>::createChild ()
+Treent<TreeComponents...>& Treent<TreeComponents...>::createChild ()
 {
-  auto child = std::make_shared<Treent<TreeComponents...>>(_entities);
-
-  attachChild(child);
-  return child;
+  auto child = new Treent<TreeComponents...>(_entities);
+  attachChild(std::unique_ptr<Treent<TreeComponents...>>(child));
+  return *child;
 }
 
 template <typename ... TreeComponents>
-void Treent<TreeComponents...>::attachChild (const TreentRef &child)
+template <typename TreentType, typename ... Parameters>
+TreentType& Treent<TreeComponents...>::createChild (Parameters&& ... parameters)
+{
+  auto child = new TreentType(_entities, std::forward<Parameters>(parameters)...);
+  attachChild(std::unique_ptr<TreentType>(child));
+  return *child;
+}
+
+template <typename ... TreeComponents>
+void Treent<TreeComponents...>::attachChild (TreentRef &&child)
 {
   child->_parent = this;
   attachChildComponent<TreeComponents...>(child);
-  _children.push_back(child);
+  _children.push_back(std::move(child));
 }
 
 template <typename ... TreeComponents>
-void Treent<TreeComponents...>::appendChild (const TreentRef &child)
+void Treent<TreeComponents...>::appendChild (TreentRef &&child)
 {
-  if (child->_parent)
-  {
-    if (child->_parent == this)
-    {
-      return;
-    }
-    else
-    {
-      child->_parent->removeChild(child);
-    }
-  }
+  // If the child was owned by a parent, the user wouldn't have the unique_ptr to pass in here.
+  assert(! child->_parent);
 
-  attachChild(child);
+  attachChild(std::move(child));
 }
 
 template <typename ... TreeComponents>
-void Treent<TreeComponents...>::removeChild (Treent *child)
+TreentRef<TreeComponents...> Treent<TreeComponents...>::removeChild (Treent *child)
 {
   child->detachComponent<TreeComponents...>();
+  child->_parent = nullptr;
 
   auto comp = [child] (const TreentRef &c) {
     return c.get() == child;
   };
-  _children.erase(std::remove_if(_children.begin(), _children.end(), comp), _children.end());
+  auto begin = std::remove_if(_children.begin(), _children.end(), comp);
+  if (begin != _children.end()) {
+    begin->release();
+    _children.erase(begin, _children.end());
+    return TreentRef(child);
+  }
+
+  // Wasn't already a child, return nullptr.
+  return nullptr;
 }
 
 template <typename ... TreeComponents>
