@@ -35,6 +35,15 @@ public:
   /// Additionally, we get much better compiler errors when doing this explicitly.
   Treent (const Treent &other) = delete;
 
+	/// Factory function for creating Treents.
+	template<typename TreentType, typename ... Parameters>
+	static TreentRef create (EntityManager &entities, Parameters&& ... parameters);
+	static TreentRef create (EntityManager &entities);
+
+	/// Create and return a Treent that is not a child of this Treent. (Spawn a rhizome...)
+	template<typename TreentType, typename ... Parameters>
+	TreentRef create (Parameters&& ... parameters) { create<TreentType>(_entities, std::forward<Parameters>(parameters)...); }
+
   //
   // TODO: Mirror Entity methods. (add/remove components, getOrAssign convenience.)
   //
@@ -135,6 +144,20 @@ Treent<TreeComponents...>::~Treent()
   // Also: don't need to notify parent, because we wouldn't be destroyed if it still cared about us.
 }
 
+template <typename ... TreeComponents>
+template<typename TreentType, typename ... Parameters>
+TreentRef<TreeComponents...> Treent<TreeComponents...>::create (EntityManager &entities, Parameters&& ... parameters)
+{
+	return std::unique_ptr<TreentType>(new TreentType(entities, std::forward<Parameters>(parameters)...));
+}
+
+template <typename ... TreeComponents>
+TreentRef<TreeComponents...> Treent<TreeComponents...>::create (EntityManager &entities)
+{
+	return std::unique_ptr<Treent>(new Treent(entities));
+}
+
+// TODO: implement createChild() methods in terms of create().
 template <typename ... TreeComponents>
 Treent<TreeComponents...>& Treent<TreeComponents...>::createChild ()
 {
