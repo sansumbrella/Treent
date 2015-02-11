@@ -26,7 +26,12 @@ void Treent2dApp::setup()
 
   auto ent = make_shared<treent::Treent2D>(entities);
   auto c = ent->createChild();
+
+  assert( c->entity().has_component<treent::TransformComponent>() );
+  assert( c->entity().has_component<treent::StyleComponent>() );
+
   ent->removeChild(c);
+
 }
 
 void Treent2dApp::mouseDown( MouseEvent event )
