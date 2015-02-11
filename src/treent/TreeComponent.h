@@ -28,6 +28,7 @@ public:
   static void attachToParent (Ref child, Ref parent);
 
   void removeChild (Derived *child);
+  void removeChildren ();
   void detachFromParent ();
 
   /// Visit all children depth-first.
@@ -37,8 +38,9 @@ public:
   /// Calls updateParent(Derived &) for each.
   void ascend();
 
-	bool isRoot() { return ! _parent; }
-	bool isLeaf() { return _children.empty(); }
+  bool isRoot() { return ! _parent; }
+  bool isLeaf() { return _children.empty(); }
+
 
 private:
   Ref               _parent;
@@ -65,6 +67,16 @@ void TreeComponent<D>::removeChild (D *child)
   };
 
   _children.erase(std::remove_if(_children.begin(), _children.end(), comp), _children.end());
+}
+
+template <typename D>
+void TreeComponent<D>::removeChildren()
+{
+  for (auto child : _children)
+  {
+    child->detachFromParent();
+  }
+  _children.clear();
 }
 
 template <typename D>
