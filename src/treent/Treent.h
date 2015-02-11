@@ -9,6 +9,10 @@
 namespace treent
 {
 
+using entityx::Entity;
+using entityx::EntityManager;
+using entityx::ComponentHandle;
+
 template <typename ... TreeComponents> class Treent;
 
 template <typename ... TreeComponents>
@@ -26,7 +30,7 @@ public:
   using TreentRef = TreentRef<TreeComponents...>;
 
   /// Construct a Treent with an EntityManager.
-  explicit Treent (entityx::EntityManager &entities);
+  explicit Treent (EntityManager &entities);
   virtual ~Treent ();
 
   /// Treent has unique ownership of entity, so shouldn't be copied.
@@ -37,40 +41,49 @@ public:
   // TODO: Mirror Entity methods. (add/remove components, getOrAssign convenience.)
   //
 
-  entityx::Entity& entity() { return _entity; }
+  /// Returns the underlying entity. Will likely be removed in favor of mirroring interface (so you can't inadvertantly destroy the entity as easily).
+  Entity&            entity () __deprecated { return _entity; }
 
   /// Assign a component to entity, forwarding params to the component constructor.
   template <typename C, typename ... Params>
-  void assign (Params&& ... params) { _entity.assign<C>(std::forward<Params>(params)...); }
+  void               assign (Params&& ... params) { _entity.assign<C>(std::forward<Params>(params)...); }
 
   /// Get a handle to an existing component of the entity.
   template <typename C>
-  entityx::ComponentHandle<C> component() { return _entity.component<C>(); }
+  ComponentHandle<C> component () { return _entity.component<C>(); }
+
+  template <typename C>
+  bool               hasComponent() const { return _entity.has_component<C>(); }
 
   //
   // Tree growing/pruning methods.
   //
 
   /// Creates and returns a treent node as a child of this Treent.
-  Treent& createChild ();
-  /// Creates and returns a treent node as a child of this Treent.
+  Treent&     createChild ();
+  /// Creates and returns a subclass of treent node as a child of this Treent.
   /// Args are passed to the constructor after the entity manager.
   template <typename TreentType, typename ... Parameters>
   TreentType& createChild (Parameters&& ... parameters);
 
   /// Appends a child to Treent, transferring ownership to the parent.
-  void      appendChild (TreentRef &&child);
+  void        appendChild (TreentRef &&child);
 
   /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
-  TreentRef removeChild (Treent &child) { return removeChild(&child); }
+  TreentRef   removeChild (Treent &child) { return removeChild(&child); }
   /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
-  TreentRef removeChild (Treent *child);
+  TreentRef   removeChild (Treent *child);
 
   /// Remove the Treent from its parent.
   /// If it was parented, this destroys the Treent as it removes the last reference from scope.
-  void      destroy () { if (_parent) { _parent->remove(this); } }
+  void        destroy () { if (_parent) { _parent->remove(this); } }
 
-  // Enable iteration over the children (for doing animations on each child with an offset, etc.)
+  //
+  // Child iteration methods.
+  // Use for animating each child with a delay or similar tasks.
+  // To manipulate the children, use Systems that act on the relevant Components.
+  //
+
   typename std::vector<TreentRef>::iterator begin() { return _children.begin(); }
   typename std::vector<TreentRef>::iterator end() { return _children.end(); }
 
@@ -101,7 +114,7 @@ private:
 #pragma mark - Treent Template Implementation
 
 template <typename ... TreeComponents>
-Treent<TreeComponents...>::Treent(entityx::EntityManager &entities)
+Treent<TreeComponents...>::Treent(EntityManager &entities)
 : _entities(entities),
   _entity(entities.create())
 {

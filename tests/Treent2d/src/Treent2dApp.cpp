@@ -41,15 +41,15 @@ void Treent2dApp::setup()
   auto ent = make_shared<treent::Treent2D>(entities);
   auto &c = ent->createChild();
 
-  assert( c.entity().has_component<treent::TransformComponent>() );
-  assert( c.entity().has_component<treent::StyleComponent>() );
+  assert( c.hasComponent<treent::TransformComponent>() );
+  assert( c.hasComponent<treent::StyleComponent>() );
 
   auto child = ent->removeChild(&c);
   ent->appendChild(std::move(child));
 
   auto &b = c.createChild<ChildClass>("so fair");
-  assert(b.entity().has_component<treent::TransformComponent>());
-  assert(b.entity().has_component<treent::StyleComponent>());
+  assert(b.hasComponent<treent::TransformComponent>());
+  assert(b.hasComponent<treent::StyleComponent>());
   assert(b.getName() == "so fair");
 }
 
