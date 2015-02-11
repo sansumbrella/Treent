@@ -53,7 +53,7 @@ public:
 
   /// Assign a component to entity, forwarding params to the component constructor.
   template <typename C, typename ... Params>
-  void               assign (Params&& ... params) { _entity.assign<C>(std::forward<Params>(params)...); }
+  ComponentHandle<C> assign (Params&& ... params) { return _entity.assign<C>(std::forward<Params>(params)...); }
 	/// Producer for assigning multiple components.
 	template <typename C1, typename C2, typename ... Cs>
 	void      assign ();
