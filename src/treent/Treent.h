@@ -54,10 +54,17 @@ public:
   /// Assign a component to entity, forwarding params to the component constructor.
   template <typename C, typename ... Params>
   void               assign (Params&& ... params) { _entity.assign<C>(std::forward<Params>(params)...); }
+	/// Producer for assigning multiple components.
+	template <typename C1, typename C2, typename ... Cs>
+	void      assign ();
 
   /// Get a handle to an existing component of the entity.
   template <typename C>
   ComponentHandle<C> component () { return _entity.component<C>(); }
+
+	/// Get a handle to an existing component of the entity.
+	template <typename C>
+	ComponentHandle<C> get () { return _entity.component<C>(); }
 
   template <typename C>
   bool               hasComponent() const { return _entity.has_component<C>(); }
@@ -102,10 +109,6 @@ private:
 
   // Create necessary component connections and store reference to child.
   void      attachChild (TreentRef &&child);
-
-  /// Producer for assigning multiple components.
-  template <typename C1, typename C2, typename ... Cs>
-  void      assign ();
 
   template <typename C>
   void      attachChildComponent (const TreentRef &child);
@@ -224,7 +227,7 @@ template <typename ... TreeComponents>
 template <typename C>
 void Treent<TreeComponents...>::attachChildComponent(const TreentRef &child)
 {
-  C::attachToParent(child->entity().template component<C>(), _entity.component<C>());
+  C::attachToParent(child->template component<C>(), _entity.component<C>());
 }
 
 template <typename ... TreeComponents>
