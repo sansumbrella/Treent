@@ -102,8 +102,8 @@ public:
   // To manipulate the children, use Systems that act on the relevant Components.
   //
 
-  typename std::vector<TreentRef>::iterator begin() { return _children.begin(); }
-  typename std::vector<TreentRef>::iterator end() { return _children.end(); }
+  typename std::vector<TreentRef>::const_iterator begin() const { return _children.begin(); }
+  typename std::vector<TreentRef>::const_iterator end() const { return _children.end(); }
 
 private:
   entityx::EntityManager  &_entities;
