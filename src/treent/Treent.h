@@ -67,6 +67,9 @@ public:
 	template <typename C>
 	ComponentHandle<C> get () { return _entity.component<C>(); }
 
+	template <typename C>
+	typename C::Handle getOrAssign() { if( hasComponent<C>() ) { return component<C>(); } return assign<C>(); }
+
   template <typename C>
   bool               hasComponent() const { return _entity.has_component<C>(); }
 
