@@ -25,7 +25,8 @@ template <typename ... TreeComponents>
 class Treent
 {
 public:
-  using TreentRef = TreentRef<TreeComponents...>;
+	using TreentRef = std::unique_ptr<Treent>;
+	using Component = TreentNodeComponent<Treent>;
 
   /// Construct a Treent with an EntityManager.
   explicit Treent (EntityManager &entities);
@@ -90,7 +91,7 @@ public:
 
   /// Remove the Treent from its parent.
   /// If it was parented, this destroys the Treent as it removes the last reference from scope.
-  void        destroy () { if (_parent) { _parent->remove(this); } }
+  void        destroy () { if (_parent) { _parent->removeChild(this); } }
 
   //
   // Child iteration methods.
@@ -129,7 +130,7 @@ Treent<TreeComponents...>::Treent(EntityManager &entities)
   _entity(entities.create())
 {
   assign<TreeComponents...>();
-  _entity.assign<TreentNodeComponent<Treent>>(this);
+  _entity.assign<TreentNodeComponent<Treent>>(*this);
 }
 
 template <typename ... TreeComponents>
@@ -212,11 +213,11 @@ TreentRef<TreeComponents...> Treent<TreeComponents...>::removeChild (Treent *chi
   auto comp = [child] (const TreentRef &c) {
     return c.get() == child;
   };
-  auto begin = std::remove_if(_children.begin(), _children.end(), comp);
-  if (begin != _children.end()) {
-    begin->release();
-    _children.erase(begin, _children.end());
-    return TreentRef(child);
+	auto iter = std::find_if(_children.begin(), _children.end(), comp);
+  if (iter != _children.end()) {
+    auto ptr = iter->release();
+    _children.erase(iter);
+    return TreentRef(ptr);
   }
 
   // Wasn't already a child, return nullptr.
