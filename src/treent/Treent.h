@@ -91,6 +91,10 @@ public:
   TreentRef   removeChild (Treent &child) { return removeChild(&child); }
   /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
   TreentRef   removeChild (Treent *child);
+	/// Remove all children from Treent.
+	void				destroyChildren();
+
+	bool				hasChildren() const { return ! _children.empty(); }
 
   /// Remove the Treent from its parent.
   /// If it was parented, this destroys the Treent as it removes the last reference from scope.
@@ -225,6 +229,15 @@ TreentRef<TreeComponents...> Treent<TreeComponents...>::removeChild (Treent *chi
 
   // Wasn't already a child, return nullptr.
   return nullptr;
+}
+
+template <typename ... TreeComponents>
+void Treent<TreeComponents...>::destroyChildren()
+{
+	for (auto &child : _children) {
+		child->template detachComponent<TreeComponents...>();
+	}
+	_children.clear();
 }
 
 template <typename ... TreeComponents>
