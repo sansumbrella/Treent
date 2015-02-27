@@ -22,21 +22,14 @@ using TreentRef = std::unique_ptr<Treent<TreeComponents...>>;
 /// Stores the entity manager so it can create its entity and child entities.
 ///
 template <typename ... TreeComponents>
-class Treent : public TreentBase
+class Treent : public TreentBase, public Owner
 {
 public:
 	using TreentRef = std::unique_ptr<Treent>;
 	using Component = TreentNodeComponent<Treent>;
-  // Owner is equivalent until we have a manager class that can also be the owner.
-  using Owner = Treent;
 
   /// Construct a Treent with an EntityManager.
   explicit Treent(EntityManager &entities);
-  virtual ~Treent();
-
-  /// Treent has unique ownership of entity, so shouldn't be copied.
-  /// Additionally, we get much better compiler errors when doing this explicitly.
-  Treent(const Treent &other) = delete;
 
 	/// Factory function for creating Treents.
 	template<typename TreentType, typename ... Parameters>
@@ -65,14 +58,12 @@ public:
   TreentRef   removeChild(Treent &child) { return removeChild(&child); }
   /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
   TreentRef   removeChild(Treent *child);
+  /// Removes child from Treent and destroys it. TODO: eliminate need for static_cast (perhaps make detach functions static).
+  void        destroyChild(TreentBase *child) { removeChild(static_cast<Treent*>(child)); }
 	/// Remove all children from Treent.
 	void				destroyChildren();
 
 	bool				hasChildren() const { return ! _children.empty(); }
-
-  /// Remove the Treent from its parent.
-  /// If it was parented, this destroys the Treent as it removes the last reference from scope.
-  void        destroy() { assert(_owner); _owner->removeChild(this); }
 
   //
   // Child iteration methods.
@@ -86,7 +77,6 @@ public:
 private:
   std::vector<TreentRef>  _children;
   Treent*                 _parent = nullptr;
-  Owner*                  _owner = nullptr;
 
   // Create necessary component connections and store reference to child.
   void      attachChild (TreentRef &&child);
@@ -110,16 +100,6 @@ Treent<TreeComponents...>::Treent(EntityManager &entities)
 {
   assign<TreeComponents...>();
   assign<TreentNodeComponent<Treent>>(*this);
-}
-
-template <typename ... TreeComponents>
-Treent<TreeComponents...>::~Treent()
-{
-  // maybe prefer assert to conditional check;
-  // though user _could_ invalidate entity manually, should be discouraged when using Treent.
-
-  // Note: All the children will be destroyed with the parent, since we have unique_ptr's to them. No need to notify.
-  // Also: don't need to notify parent, because we wouldn't be destroyed if it still cared about us.
 }
 
 template <typename ... TreeComponents>
@@ -176,6 +156,7 @@ TreentRef<TreeComponents...> Treent<TreeComponents...>::removeChild(Treent *chil
 {
   child->detachComponent<TreeComponents...>();
   child->_parent = nullptr;
+  child->_owner = nullptr;
 
   auto comp = [child] (const TreentRef &c) {
     return c.get() == child;

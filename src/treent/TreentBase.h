@@ -28,6 +28,7 @@
 #pragma once
 
 #include "entityx/Entity.h"
+#include "treent/Owner.h"
 
 namespace treent
 {
@@ -35,6 +36,9 @@ namespace treent
 using entityx::Entity;
 using entityx::EntityManager;
 using entityx::ComponentHandle;
+
+class TreentBase;
+using TreentBaseURef = std::unique_ptr<TreentBase>;
 
 ///
 /// Non-templated base class for Treents.
@@ -45,6 +49,11 @@ class TreentBase
 public:
   TreentBase(EntityManager &entities);
   virtual ~TreentBase();
+
+  /// Treent has unique ownership of an entity, so it shouldn't be copied.
+  /// We get much better compiler errors when this constructor is explicitly deleted.
+  TreentBase(const TreentBase &other) = delete;
+  TreentBase(TreentBase &&other) = delete;
 
   //
   // Mirror Entity methods. (add/remove components, getOrAssign convenience.)
@@ -80,11 +89,15 @@ public:
   template <typename C>
   void               remove() { _entity.remove<C>(); }
 
+  /// Destroy the Treent. Accomplished by removing parent's reference to this, which invokes destructor.
+  void               destroy() { assert(_owner); _owner->destroyChild(this); }
+
 protected:
-  EntityManager&     entities() { return _entities; }
+  EntityManager&          entities() { return _entities; }
+  Owner*                  _owner = nullptr;
 
 private:
-  entityx::EntityManager  &_entities;
+  entityx::EntityManager& _entities;
   entityx::Entity         _entity;
 };
 
@@ -97,4 +110,4 @@ void TreentBase::assign()
   assign<C2, Cs...>();
 }
 
-}
+} // namespace treent

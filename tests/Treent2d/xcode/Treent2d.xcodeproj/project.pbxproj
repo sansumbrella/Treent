@@ -42,6 +42,7 @@
 		151F3CAE1AA109AF00791A43 /* TreentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreentManager.h; path = ../../../src/treent/TreentManager.h; sourceTree = "<group>"; };
 		151F3CB01AA10CA900791A43 /* TreentBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TreentBase.cpp; path = ../../../src/treent/TreentBase.cpp; sourceTree = "<group>"; };
 		151F3CB11AA10CA900791A43 /* TreentBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreentBase.h; path = ../../../src/treent/TreentBase.h; sourceTree = "<group>"; };
+		151F3CB41AA1179600791A43 /* Owner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Owner.h; path = ../../../src/treent/Owner.h; sourceTree = "<group>"; };
 		15EFAD78488A46DEA26E93D7 /* Treent2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Treent2d.h; path = ../../../src/treent/2d/Treent2d.h; sourceTree = "<group>"; };
 		198D570F60244EF498151CCC /* Treent2dApp.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.cpp; name = Treent2dApp.cpp; path = ../src/Treent2dApp.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		1FF9EBD7B13F4A88AB1FA1B6 /* Treent2d_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = Treent2d_Prefix.pch; sourceTree = "<group>"; };
@@ -124,6 +125,7 @@
 				151F3CAE1AA109AF00791A43 /* TreentManager.h */,
 				151F3CB01AA10CA900791A43 /* TreentBase.cpp */,
 				151F3CB11AA10CA900791A43 /* TreentBase.h */,
+				151F3CB41AA1179600791A43 /* Owner.h */,
 			);
 			name = treent;
 			sourceTree = "<group>";

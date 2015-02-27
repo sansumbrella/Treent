@@ -25,19 +25,20 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TreentBase.h"
+#pragma once
 
-using namespace treent;
-
-TreentBase::TreentBase(EntityManager &entities)
-: _entities(entities),
-  _entity(_entities.create())
-{}
-
-TreentBase::~TreentBase()
+namespace treent
 {
-  // We might want to use a conditional instead of an assertion.
-  // Though user _could_ invalidate entity manually, it should be discouraged when using Treent.
-  assert(_entity);
-  _entity.destroy();
-}
+
+class TreentBase;
+
+///
+/// Interface for owners of Treents.
+///
+class Owner
+{
+public:
+  virtual void destroyChild(TreentBase *child) = 0;
+};
+
+} // namespace treent
