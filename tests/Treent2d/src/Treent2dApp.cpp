@@ -11,18 +11,24 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
+struct Name : public entityx::Component<Name>
+{
+  Name() = default;
+  Name(const std::string &name)
+  : _name(name)
+  {}
+
+  std::string _name;
+};
+
 class ChildClass : public treent::Treent2D
 {
 public:
   ChildClass (entityx::EntityManager &entities, const std::string &name)
-  : Treent(entities),
-    _name (name)
-  {}
-
-  const std::string& getName() const { return _name; }
-
-private:
-  std::string _name;
+  : Treent(entities)
+  {
+    assign<Name>( name );
+  }
 };
 
 class Treent2dApp : public AppNative {
@@ -50,7 +56,9 @@ void Treent2dApp::setup()
   auto &b = c.createChild<ChildClass>("so fair");
   assert(b.hasComponent<treent::TransformComponent>());
   assert(b.hasComponent<treent::StyleComponent>());
-  assert(b.getName() == "so fair");
+  assert(b.get<Name>()->_name == "so fair");
+
+  b.destroy();
 }
 
 void Treent2dApp::mouseDown( MouseEvent event )
