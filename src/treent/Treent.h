@@ -1,8 +1,11 @@
 
 #pragma once
 
+#include "ChildrenComponent.h"
+#include "ParentComponent.h"
 #include "TreentNodeComponent.h"
 #include "TreentBase.h"
+#include "detail/Logging.h"
 
 namespace treent
 {
@@ -11,68 +14,39 @@ using entityx::Entity;
 using entityx::EntityManager;
 using entityx::ComponentHandle;
 
-template <typename ... TreeComponents> class Treent;
-
-template <typename ... TreeComponents>
-using TreentRef = std::unique_ptr<Treent<TreeComponents...>>;
-
 ///
 /// Treent manages a tree of entities that share a common set of tree components.
 /// Use to create prefab-like objects in your source code.
 /// Stores the entity manager so it can create its entity and child entities.
 ///
 template <typename ... TreeComponents>
-class Treent : public TreentBase
+class TreentT : public TreentBase
 {
 public:
-	using TreentRef = std::unique_ptr<Treent>;
-	using Component = TreentNodeComponent<Treent>;
-  // Owner is equivalent until we have a manager class that can also be the owner.
-  using Owner = Treent;
 
-  /// Construct a Treent with an EntityManager.
-  explicit Treent(EntityManager &entities);
-  virtual ~Treent();
-
-  /// Treent has unique ownership of entity, so shouldn't be copied.
-  /// Additionally, we get much better compiler errors when doing this explicitly.
-  Treent(const Treent &other) = delete;
-
-	/// Factory function for creating Treents.
-	template<typename TreentType, typename ... Parameters>
-	static TreentRef create(EntityManager &entities, Parameters&& ... parameters);
-	static TreentRef create(EntityManager &entities);
-
-	/// Create and return a Treent that is not a child of this Treent. (Spawn a rhizome...)
-	template<typename TreentType, typename ... Parameters>
-	TreentRef create(Parameters&& ... parameters) { create<TreentType>(entities(), std::forward<Parameters>(parameters)...); }
+  explicit TreentT(const Entity &entity);
+  static TreentT create() { return TreentT(entities().create()); }
 
   //
   // Tree growing/pruning methods.
   //
 
   /// Creates and returns a treent node as a child of this Treent.
-  Treent&     createChild();
+  TreentT     createChild();
+
   /// Creates and returns a subclass of treent node as a child of this Treent.
   /// Args are passed to the constructor after the entity manager.
-  template <typename TreentType, typename ... Parameters>
-  TreentType& createChild(Parameters&& ... parameters);
+  template <typename Derived, typename ... Parameters>
+  Derived     createChild(Parameters&& ... parameters);
 
-  /// Appends a child to Treent, transferring ownership to the parent.
-  void        appendChild(TreentRef &&child);
+  /// Appends a child to Treent, transferring ownership to the parent entity.
+  void        appendChild(Entity &child);
 
-  /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
-  TreentRef   removeChild(Treent &child) { return removeChild(&child); }
-  /// Removes child from Treent and transfers ownership to caller in a unique_ptr.
-  TreentRef   removeChild(Treent *child);
-	/// Remove all children from Treent.
+  /// Removes child from Treent.
+  void        removeChild(Entity &child);
+
+  /// Remove and destroy all children of Treent.
 	void				destroyChildren();
-
-	bool				hasChildren() const { return ! _children.empty(); }
-
-  /// Remove the Treent from its parent.
-  /// If it was parented, this destroys the Treent as it removes the last reference from scope.
-  void        destroy() { assert(_owner); _owner->removeChild(this); }
 
   //
   // Child iteration methods.
@@ -80,154 +54,141 @@ public:
   // To manipulate the children, use Systems that act on the relevant Components.
   //
 
-  typename std::vector<TreentRef>::const_iterator begin() const { return _children.begin(); }
-  typename std::vector<TreentRef>::const_iterator end() const { return _children.end(); }
+  const std::vector<Entity>& getChildren() const { return component<ChildrenComponent>()->_children; }
+
+  std::vector<Entity>::const_iterator begin() const { return getChildren().begin(); }
+  std::vector<Entity>::const_iterator end() const { return getChildren().end(); }
+
+  /// Detach all Tree components.
+  static void detachFromParent(Entity &child);
+  void        detachFromParent() { detachFromParent(entity()); }
 
 private:
-  std::vector<TreentRef>  _children;
-  Treent*                 _parent = nullptr;
-  Owner*                  _owner = nullptr;
-
-  // Create necessary component connections and store reference to child.
-  void      attachChild (TreentRef &&child);
+  /// Connect child tree components and set parent/children component relationship.
+  void        attachChild(Entity &child);
 
   template <typename C>
-  void      attachChildComponent(const TreentRef &child);
+  void        attachChildTreeComponent(Entity &child);
   template <typename C1, typename C2, typename ... Components>
-  void      attachChildComponent(const TreentRef &child);
+  void        attachChildTreeComponent(Entity &child);
 
   template <typename C>
-  void      detachComponent();
+  static void detachTreeComponentFromParent(Entity &entity);
   template <typename C1, typename C2, typename ... Components>
-  void      detachComponent();
+  static void detachTreeComponentFromParent(Entity &entity);
 };
 
 #pragma mark - Treent Template Implementation
 
 template <typename ... TreeComponents>
-Treent<TreeComponents...>::Treent(EntityManager &entities)
-: TreentBase(entities)
+TreentT<TreeComponents...>::TreentT(const Entity &entity)
+: TreentBase(entity)
 {
-  assign<TreeComponents...>();
-  assign<TreentNodeComponent<Treent>>(*this);
+  assignIfMissing<ChildrenComponent>();
+  assignIfMissing<TreeComponents...>();
 }
 
 template <typename ... TreeComponents>
-Treent<TreeComponents...>::~Treent()
+void TreentT<TreeComponents...>::attachChild(entityx::Entity &child)
 {
-  // maybe prefer assert to conditional check;
-  // though user _could_ invalidate entity manually, should be discouraged when using Treent.
+  auto pc = treent::getOrAssign<ParentComponent>(child);
+  auto cc = component<ChildrenComponent>();
 
-  // Note: All the children will be destroyed with the parent, since we have unique_ptr's to them. No need to notify.
-  // Also: don't need to notify parent, because we wouldn't be destroyed if it still cared about us.
+  pc->_parent = entity();
+  cc->addChild(child);
+
+  attachChildTreeComponent<TreeComponents...>(child);
 }
 
 template <typename ... TreeComponents>
-template<typename TreentType, typename ... Parameters>
-TreentRef<TreeComponents...> Treent<TreeComponents...>::create(EntityManager &entities, Parameters&& ... parameters)
+void TreentT<TreeComponents...>::detachFromParent(entityx::Entity &child)
 {
-	return std::unique_ptr<TreentType>(new TreentType(entities, std::forward<Parameters>(parameters)...));
-}
+  auto pc = child.component<ParentComponent>();
 
-template <typename ... TreeComponents>
-TreentRef<TreeComponents...> Treent<TreeComponents...>::create(EntityManager &entities)
-{
-	return std::unique_ptr<Treent>(new Treent(entities));
-}
-
-// TODO: implement createChild() methods in terms of create().
-template <typename ... TreeComponents>
-Treent<TreeComponents...>& Treent<TreeComponents...>::createChild()
-{
-  auto child = new Treent<TreeComponents...>(entities());
-  attachChild(std::unique_ptr<Treent<TreeComponents...>>(child));
-  return *child;
-}
-
-template <typename ... TreeComponents>
-template <typename TreentType, typename ... Parameters>
-TreentType& Treent<TreeComponents...>::createChild(Parameters&& ... parameters)
-{
-  auto child = new TreentType(entities(), std::forward<Parameters>(parameters)...);
-  attachChild(std::unique_ptr<TreentType>(child));
-  return *child;
-}
-
-template <typename ... TreeComponents>
-void Treent<TreeComponents...>::attachChild(TreentRef &&child)
-{
-  child->_parent = this;
-  child->_owner = this;
-  attachChildComponent<TreeComponents...>(child);
-  _children.push_back(std::move(child));
-}
-
-template <typename ... TreeComponents>
-void Treent<TreeComponents...>::appendChild(TreentRef &&child)
-{
-  // If the child was owned by a parent, the user wouldn't have the unique_ptr to pass in here.
-  assert(! child->_parent);
-
-  attachChild(std::move(child));
-}
-
-template <typename ... TreeComponents>
-TreentRef<TreeComponents...> Treent<TreeComponents...>::removeChild(Treent *child)
-{
-  child->detachComponent<TreeComponents...>();
-  child->_parent = nullptr;
-
-  auto comp = [child] (const TreentRef &c) {
-    return c.get() == child;
-  };
-	auto iter = std::find_if(_children.begin(), _children.end(), comp);
-  if (iter != _children.end()) {
-    auto ptr = iter->release();
-    _children.erase(iter);
-    return TreentRef(ptr);
+  if (pc) {
+    pc->_parent.component<ChildrenComponent>()->removeChild(child);
+    pc.remove();
+    detachTreeComponentFromParent<TreeComponents...>(child);
   }
-
-  // Wasn't already a child, return nullptr.
-  return nullptr;
 }
 
 template <typename ... TreeComponents>
-void Treent<TreeComponents...>::destroyChildren()
+void TreentT<TreeComponents...>::removeChild(entityx::Entity &child)
 {
-	for (auto &child : _children) {
-		child->template detachComponent<TreeComponents...>();
+  auto pc = child.component<ParentComponent>();
+
+  if (pc && pc->_parent == entity()) {
+    detachFromParent(child);
+  }
+  else {
+    TREENT_WARN( "Attempt to remove child not belonging to this treent." );
+  }
+}
+
+template <typename ... TreeComponents>
+TreentT<TreeComponents...> TreentT<TreeComponents...>::createChild()
+{
+  auto child = TreentT(entities().create());
+  attachChild(child.entity());
+  return child;
+}
+
+template <typename ... TreeComponents>
+template <typename Derived, typename ... Parameters>
+Derived TreentT<TreeComponents...>::createChild(Parameters&& ... parameters)
+{
+  auto child = TreentType(entities().create(), std::forward<Parameters>(parameters)...);
+  attachChild(child.entity());
+  return child;
+}
+
+template <typename ... TreeComponents>
+void TreentT<TreeComponents...>::appendChild(Entity &child)
+{
+  detachFromParent(child);
+  attachChild(child);
+}
+
+template <typename ... TreeComponents>
+void TreentT<TreeComponents...>::destroyChildren()
+{
+  auto cc = component<ChildrenComponent>();
+  auto children = cc->_children;
+  cc->_children.clear();
+
+	for (auto &child : children) {
+    detachTreeComponentFromParent<TreeComponents...>(child);
 	}
-	_children.clear();
 }
 
 template <typename ... TreeComponents>
 template <typename C>
-void Treent<TreeComponents...>::attachChildComponent(const TreentRef &child)
+void TreentT<TreeComponents...>::attachChildTreeComponent(Entity &child)
 {
-  C::attachToParent(child->template component<C>(), component<C>());
+  C::attachToParent(child.component<C>(), component<C>());
 }
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent<TreeComponents...>::attachChildComponent(const TreentRef &child)
+void TreentT<TreeComponents...>::attachChildTreeComponent(Entity &child)
 {
-  attachChildComponent<C1>(child);
-  return attachChildComponent<C2, Components ...>(child);
+  attachChildTreeComponent<C1>(child);
+  return attachChildTreeComponent<C2, Components ...>(child);
 }
 
 template <typename ... TreeComponents>
 template <typename C>
-void Treent<TreeComponents...>::detachComponent()
+void TreentT<TreeComponents...>::detachTreeComponentFromParent(Entity &child)
 {
-  component<C>()->detachFromParent();
+  child.component<C>()->detachFromParent();
 }
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent<TreeComponents...>::detachComponent()
+void TreentT<TreeComponents...>::detachTreeComponentFromParent(Entity &child)
 {
-  detachComponent<C1>();
-  return detachComponent<C2, Components ...>();
+  detachTreeComponentFromParent<C1>(child);
+  return detachTreeComponentFromParent<C2, Components ...>(child);
 }
 
 } // namespace treent

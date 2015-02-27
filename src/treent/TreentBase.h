@@ -36,55 +36,100 @@ using entityx::Entity;
 using entityx::EntityManager;
 using entityx::ComponentHandle;
 
+class SharedEntities
+{
+public:
+  static SharedEntities& instance();
+  void   setup(entityx::EntityManager &entities) { _entities = &entities; }
+
+private:
+  SharedEntities() = default;
+  entityx::EntityManager& entities() { return *_entities; }
+  entityx::EntityManager *_entities = nullptr;
+
+  friend class TreentBase;
+};
+
+SharedEntities& SharedEntities::instance()
+{
+  static SharedEntities sInstance;
+  return sInstance;
+}
+
+template <typename C>
+ComponentHandle<C> getOrAssign(entityx::Entity &entity)
+{
+  if (entity.has_component<C>()) {
+    return entity.component<C>();
+  }
+  return entity.assign<C>();
+}
+
 ///
 /// Non-templated base class for Treents.
-/// Manages the lifetime of a single entityx::Entity.
+/// Mirrors and extends the Entity interface.
+/// Treents can have children, whose lifetime is tied to the parent.
 ///
 class TreentBase
 {
 public:
-  TreentBase(EntityManager &entities);
-  virtual ~TreentBase();
+  /// Constructs an invalid Treent.
+  TreentBase() = default;
+
+  /// Constructs a Treent that provides a facade to an entity.
+  explicit TreentBase(const Entity &entity): _entity(entity) {}
+
+  virtual ~TreentBase() = default;
 
   //
   // Mirror Entity methods. (add/remove components, getOrAssign convenience.)
   //
 
-  /// Returns the underlying entity. Will likely be removed in favor of mirroring interface (so you can't inadvertantly destroy the entity as easily).
-  Entity&            entity() __deprecated { return _entity; }
+  /// Returns the underlying entity.
+  Entity&             entity() { return _entity; }
 
-  /// Assign a component to entity, forwarding params to the component constructor.
+  /// Assign a component to entity, forwards params to the component constructor.
   template <typename C, typename ... Params>
-  ComponentHandle<C> assign(Params&& ... params) { return _entity.assign<C>(std::forward<Params>(params)...); }
-  /// Producer for assigning multiple components.
+  ComponentHandle<C>  assign(Params&& ... params) { return _entity.assign<C>(std::forward<Params>(params)...); }
+  /// Assign multiple components to entity. No constructor arguments can be passed.
   template <typename C1, typename C2, typename ... Cs>
-  void      assign ();
+  void                assign();
+
+  /// Add a component to entity if it doesn't already have a component of that type.
+  template <typename C>
+  void                assignIfMissing() { if (! hasComponent<C>()) { assign<C>(); } }
+  template <typename C1, typename C2, typename ... Cs>
+  void                assignIfMissing();
 
   /// Get a handle to an existing component of the entity.
   template <typename C>
-  ComponentHandle<C> component() { return _entity.component<C>(); }
-
-  /// Get a handle to an existing component of the entity.
+  ComponentHandle<C>  component() { return _entity.component<C>(); }
+  /// Get a handle to an existing component of the entity. Same as .component<C>.
   template <typename C>
-  ComponentHandle<C> get() { return _entity.component<C>(); }
+  ComponentHandle<C>  get() { return _entity.component<C>(); }
 
-  /// Get a handle to a component of the entity. If the component doesn't exist, it will be default-constructed.
+  /// Get a handle to a component of the entity.
+  /// If the component doesn't exist, it will be default-constructed.
   template <typename C>
-  typename C::Handle getOrAssign() { if( hasComponent<C>() ) { return component<C>(); } return assign<C>(); }
+  typename C::Handle  getOrAssign() { if( hasComponent<C>() ) { return component<C>(); } return assign<C>(); }
 
   /// Returns true iff the entity has a component of the given type.
   template <typename C>
-  bool               hasComponent() const { return _entity.has_component<C>(); }
+  bool                hasComponent() const { return _entity.has_component<C>(); }
 
   /// Remove a component from the entity.
   template <typename C>
-  void               remove() { _entity.remove<C>(); }
+  void                remove() { _entity.remove<C>(); }
+
+  /// Returns true iff this Treent refers to a valid entity.
+  bool                valid() const { return _entity.valid(); }
+  operator bool       () const { return valid(); }
+
+  /// Destroy the underlying entity. This invalidates this Treent.
+  void                destroy() { _entity.destroy(); }
 
 protected:
-  EntityManager&     entities() { return _entities; }
-
-private:
-  entityx::EntityManager  &_entities;
+  static EntityManager&   entities() { return SharedEntities::instance().entities(); }
   entityx::Entity         _entity;
 };
 
@@ -97,4 +142,11 @@ void TreentBase::assign()
   assign<C2, Cs...>();
 }
 
+template <typename C1, typename C2, typename ... Cs>
+void TreentBase::assignIfMissing()
+{
+  assignIfMissing<C1>();
+  assignIfMissing<C2, Cs...>();
 }
+
+} // namespace treent

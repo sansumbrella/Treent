@@ -25,17 +25,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "TreentBase.h"
+#pragma once
 
-using namespace treent;
+#include "entityx/Entity.h"
+#include <algorithm>
 
-TreentBase::TreentBase(EntityManager &entities)
-: _entities(entities),
-  _entity(_entities.create())
-{}
-
-TreentBase::~TreentBase()
+namespace treent
 {
-  assert(_entity);
-  _entity.destroy();
+
+struct ChildrenComponent : public entityx::Component<ChildrenComponent>
+{
+  ChildrenComponent() = default;
+  ~ChildrenComponent();
+
+  /// Add a child to be managed by this ChildrenComponent. It will be destroyed when this component is destroyed.
+  void addChild(const entityx::Entity &child) { _children.push_back(child); }
+  /// Removes a child from management. Does not destroy the child.
+  void removeChild(const entityx::Entity &child);
+
+  std::vector<entityx::Entity>  _children;
+};
+
+ChildrenComponent::~ChildrenComponent()
+{
+  for (auto &e : _children) {
+    e.destroy();
+  }
 }
+
+void ChildrenComponent::removeChild(const entityx::Entity &child)
+{
+  auto begin = std::remove_if(_children.begin(), _children.end(), [&](const entityx::Entity &e) { return e == child; });
+  _children.erase(begin, _children.end());
+}
+
+} // namespace treent

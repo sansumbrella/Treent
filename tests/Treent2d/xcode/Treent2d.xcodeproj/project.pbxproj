@@ -15,8 +15,6 @@
 		00B784B50FF439BC000DE1D7 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B10FF439BC000DE1D7 /* AudioUnit.framework */; };
 		00B784B60FF439BC000DE1D7 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B784B20FF439BC000DE1D7 /* CoreAudio.framework */; };
 		01621C450AB24F4292A39F9A /* Treent2dApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 198D570F60244EF498151CCC /* Treent2dApp.cpp */; };
-		151F3CAF1AA109AF00791A43 /* TreentManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 151F3CAD1AA109AF00791A43 /* TreentManager.cpp */; };
-		151F3CB21AA10CA900791A43 /* TreentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 151F3CB01AA10CA900791A43 /* TreentBase.cpp */; };
 		165674E320FA4D42A15F0074 /* Pool.cc in Sources */ = {isa = PBXBuildFile; fileRef = F37EDA3C4B8C4005B3808CE7 /* Pool.cc */; };
 		1AB38B7233334F6AAF2A998E /* Event.cc in Sources */ = {isa = PBXBuildFile; fileRef = BE5EF84FEBBA42C48B97B7A0 /* Event.cc */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
@@ -38,10 +36,8 @@
 		0C17924DF84943978AF12DA3 /* Entity.cc */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Entity.cc; path = ../../../lib/entityx/entityx/Entity.cc; sourceTree = "<group>"; };
 		0C9A043A3EAC411B842E8312 /* Treent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Treent.h; path = ../../../src/treent/Treent.h; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		151F3CAD1AA109AF00791A43 /* TreentManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TreentManager.cpp; path = ../../../src/treent/TreentManager.cpp; sourceTree = "<group>"; };
-		151F3CAE1AA109AF00791A43 /* TreentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreentManager.h; path = ../../../src/treent/TreentManager.h; sourceTree = "<group>"; };
-		151F3CB01AA10CA900791A43 /* TreentBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TreentBase.cpp; path = ../../../src/treent/TreentBase.cpp; sourceTree = "<group>"; };
-		151F3CB11AA10CA900791A43 /* TreentBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreentBase.h; path = ../../../src/treent/TreentBase.h; sourceTree = "<group>"; };
+		151F3CB11AA10CA900791A43 /* TreentBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreentBase.h; path = ../../../src/treent/TreentBase.h; sourceTree = "<group>"; usesTabs = 0; };
+		154AE3E11AAA075F00C24B10 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
 		15EFAD78488A46DEA26E93D7 /* Treent2d.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Treent2d.h; path = ../../../src/treent/2d/Treent2d.h; sourceTree = "<group>"; };
 		198D570F60244EF498151CCC /* Treent2dApp.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.cpp; name = Treent2dApp.cpp; path = ../src/Treent2dApp.cpp; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		1FF9EBD7B13F4A88AB1FA1B6 /* Treent2d_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = Treent2d_Prefix.pch; sourceTree = "<group>"; };
@@ -60,6 +56,9 @@
 		8C3751BEC5174E7AA07CB98E /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = System.h; path = ../../../lib/entityx/entityx/System.h; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Treent2d.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Treent2d.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E91D7B600EF422598ECC030 /* Event.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Event.h; path = ../../../lib/entityx/entityx/Event.h; sourceTree = "<group>"; };
+		9CB4903A1AA91C6900858BD7 /* ChildrenComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChildrenComponent.h; path = ../../../src/treent/ChildrenComponent.h; sourceTree = "<group>"; };
+		9CB4903B1AA9211800858BD7 /* ParentComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ParentComponent.h; path = ../../../src/treent/ParentComponent.h; sourceTree = "<group>"; };
+		9CB4903D1AA92E7C00858BD7 /* ScopedTreent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScopedTreent.h; path = ../../../src/treent/ScopedTreent.h; sourceTree = "<group>"; };
 		BE5EF84FEBBA42C48B97B7A0 /* Event.cc */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Event.cc; path = ../../../lib/entityx/entityx/Event.cc; sourceTree = "<group>"; };
 		CE50F729D5FA4958862D8E0C /* TreeComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TreeComponent.h; path = ../../../src/treent/TreeComponent.h; sourceTree = "<group>"; };
 		F37EDA3C4B8C4005B3808CE7 /* Pool.cc */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Pool.cc; path = ../../../lib/entityx/entityx/help/Pool.cc; sourceTree = "<group>"; };
@@ -116,14 +115,15 @@
 		0CE081AF8527424AA627687F /* treent */ = {
 			isa = PBXGroup;
 			children = (
+				154AE3DF1AAA074200C24B10 /* detail */,
 				CE50F729D5FA4958862D8E0C /* TreeComponent.h */,
 				0C9A043A3EAC411B842E8312 /* Treent.h */,
 				F46A210E0065472BB872A228 /* TreentNodeComponent.h */,
 				07B1100B5580477A9E6EE352 /* 2d */,
-				151F3CAD1AA109AF00791A43 /* TreentManager.cpp */,
-				151F3CAE1AA109AF00791A43 /* TreentManager.h */,
-				151F3CB01AA10CA900791A43 /* TreentBase.cpp */,
 				151F3CB11AA10CA900791A43 /* TreentBase.h */,
+				9CB4903A1AA91C6900858BD7 /* ChildrenComponent.h */,
+				9CB4903B1AA9211800858BD7 /* ParentComponent.h */,
+				9CB4903D1AA92E7C00858BD7 /* ScopedTreent.h */,
 			);
 			name = treent;
 			sourceTree = "<group>";
@@ -154,6 +154,15 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
+		154AE3DF1AAA074200C24B10 /* detail */ = {
+			isa = PBXGroup;
+			children = (
+				154AE3E11AAA075F00C24B10 /* Logging.h */,
+			);
+			name = detail;
+			path = ../../../src/treent/detail;
+			sourceTree = "<group>";
+		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -174,6 +183,7 @@
 			);
 			name = Treent2d;
 			sourceTree = "<group>";
+			usesTabs = 0;
 		};
 		29B97315FDCFA39411CA2CEA /* Headers */ = {
 			isa = PBXGroup;
@@ -333,10 +343,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				01621C450AB24F4292A39F9A /* Treent2dApp.cpp in Sources */,
-				151F3CB21AA10CA900791A43 /* TreentBase.cpp in Sources */,
 				6A7636C8033D4A0B90DA0660 /* Entity.cc in Sources */,
 				1AB38B7233334F6AAF2A998E /* Event.cc in Sources */,
-				151F3CAF1AA109AF00791A43 /* TreentManager.cpp in Sources */,
 				9962A086830F4C6B83BC5EC0 /* System.cc in Sources */,
 				165674E320FA4D42A15F0074 /* Pool.cc in Sources */,
 			);

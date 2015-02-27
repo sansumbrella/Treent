@@ -7,6 +7,6 @@
 namespace treent
 {
 
-using Treent2D = Treent<TransformComponent, StyleComponent>;
+using Treent = TreentT<TransformComponent, StyleComponent>;
 
 } // namespace treent
