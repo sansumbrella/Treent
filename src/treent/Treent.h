@@ -49,8 +49,8 @@ public:
   // TODO: Mirror Entity methods. (add/remove components, getOrAssign convenience.)
   //
 
-  /// Returns the underlying entity. Will likely be removed in favor of mirroring interface (so you can't inadvertantly destroy the entity as easily).
-  Entity&            entity () __deprecated { return _entity; }
+  /// Returns the underlying entity. Prefer the use of the mirroring interface to this.
+  Entity&            entity() { return _entity; }
 
   /// Assign a component to entity, forwarding params to the component constructor.
   template <typename C, typename ... Params>
@@ -98,7 +98,8 @@ public:
 
   /// Remove the Treent from its parent.
   /// If it was parented, this destroys the Treent as it removes the last reference from scope.
-  void        destroy () { if (_parent) { _parent->removeChild(this); } }
+  void        destroy() __deprecated { if (_parent) { _parent->removeChild(this); } }
+	TreentRef   removeFromParent() { if (_parent) { return _parent->removeChild(this); } return nullptr; }
 
   //
   // Child iteration methods.
@@ -127,6 +128,8 @@ private:
   void      detachComponent ();
   template <typename C1, typename C2, typename ... Components>
   void      detachComponent ();
+
+	friend class TreentNodeComponent<Treent>;
 };
 
 #pragma mark - Treent Template Implementation
@@ -137,17 +140,15 @@ Treent<TreeComponents...>::Treent(EntityManager &entities)
   _entity(entities.create())
 {
   assign<TreeComponents...>();
-  _entity.assign<TreentNodeComponent<Treent>>(*this);
+  _entity.assign<TreentNodeComponent<Treent>>(this);
 }
 
 template <typename ... TreeComponents>
 Treent<TreeComponents...>::~Treent()
 {
-  // maybe prefer assert to conditional check;
-  // though user _could_ invalidate entity manually, should be discouraged when using Treent.
-  assert(_entity);
   if (_entity)
   {
+		get<TreentNodeComponent<Treent>>()->_treent = nullptr;
     _entity.destroy();
   }
 

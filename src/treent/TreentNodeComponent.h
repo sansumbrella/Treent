@@ -13,11 +13,20 @@ namespace treent
 template <typename TreeType>
 struct TreentNodeComponent : public entityx::Component<TreentNodeComponent<TreeType>>
 {
-  explicit TreentNodeComponent(TreeType &treent)
+  explicit TreentNodeComponent(TreeType *treent)
   : _treent(treent)
   {}
 
-  TreeType &_treent;
+	~TreentNodeComponent()
+	{
+		// Mark entity as invalid.
+		if (_treent) {
+			auto t = _treent->removeFromParent();
+			t->_entity = entityx::Entity();
+		}
+	}
+
+  TreeType *_treent = nullptr;
 };
 
 } // namespace treent
