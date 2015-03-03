@@ -110,6 +110,17 @@ public:
   typename std::vector<TreentRef>::const_iterator begin() const { return _children.begin(); }
   typename std::vector<TreentRef>::const_iterator end() const { return _children.end(); }
 
+protected:
+	template <typename C>
+	void      attachChildComponent (const TreentRef &child);
+	template <typename C1, typename C2, typename ... Components>
+	void      attachChildComponent (const TreentRef &child);
+
+	template <typename C>
+	void      detachComponentFromParent ();
+	template <typename C1, typename C2, typename ... Components>
+	void      detachComponentFromParent ();
+
 private:
   entityx::EntityManager  &_entities;
   entityx::Entity         _entity;
@@ -118,16 +129,6 @@ private:
 
   // Create necessary component connections and store reference to child.
   void      attachChild (TreentRef &&child);
-
-  template <typename C>
-  void      attachChildComponent (const TreentRef &child);
-  template <typename C1, typename C2, typename ... Components>
-  void      attachChildComponent (const TreentRef &child);
-
-  template <typename C>
-  void      detachComponent ();
-  template <typename C1, typename C2, typename ... Components>
-  void      detachComponent ();
 
 	friend class TreentNodeComponent<Treent>;
 };
@@ -215,7 +216,7 @@ void Treent<TreeComponents...>::appendChild (TreentRef &&child)
 template <typename ... TreeComponents>
 TreentRef<TreeComponents...> Treent<TreeComponents...>::removeChild (Treent *child)
 {
-  child->detachComponent<TreeComponents...>();
+  child->detachComponentFromParent<TreeComponents...>();
   child->_parent = nullptr;
 
   auto comp = [child] (const TreentRef &c) {
@@ -236,7 +237,7 @@ template <typename ... TreeComponents>
 void Treent<TreeComponents...>::destroyChildren()
 {
 	for (auto &child : _children) {
-		child->template detachComponent<TreeComponents...>();
+		child->template detachComponentFromParent<TreeComponents...>();
 	}
 	_children.clear();
 }
@@ -258,17 +259,17 @@ void Treent<TreeComponents...>::attachChildComponent(const TreentRef &child)
 
 template <typename ... TreeComponents>
 template <typename C>
-void Treent<TreeComponents...>::detachComponent()
+void Treent<TreeComponents...>::detachComponentFromParent()
 {
   _entity.component<C>()->detachFromParent();
 }
 
 template <typename ... TreeComponents>
 template <typename C1, typename C2, typename ... Components>
-void Treent<TreeComponents...>::detachComponent()
+void Treent<TreeComponents...>::detachComponentFromParent()
 {
-  detachComponent<C1>();
-  return detachComponent<C2, Components ...>();
+  detachComponentFromParent<C1>();
+  return detachComponentFromParent<C2, Components ...>();
 }
 
 } // namespace treent
