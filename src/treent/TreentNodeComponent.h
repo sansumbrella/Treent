@@ -13,6 +13,8 @@ namespace treent
 template <typename TreeType>
 struct TreentNodeComponent : public entityx::Component<TreentNodeComponent<TreeType>>
 {
+	TreentNodeComponent() = default;
+
   explicit TreentNodeComponent(TreeType *treent)
   : _treent(treent)
   {}
@@ -26,7 +28,15 @@ struct TreentNodeComponent : public entityx::Component<TreentNodeComponent<TreeT
 		}
 	}
 
+	TreeType* treent() const
+	{
+		assert(_treent);
+		return _treent;
+	}
+
+private:
   TreeType *_treent = nullptr;
+	friend TreeType;
 };
 
 } // namespace treent
