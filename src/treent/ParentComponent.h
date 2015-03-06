@@ -34,7 +34,7 @@ namespace treent
 
 ///
 /// Stores a reference to a parent entity.
-/// TODO: perhaps store template type information so we can optionally detach on destruction.
+/// TODO: perhaps store template type information so we can automatically (and optionally) detach on destruction.
 ///
 struct ParentComponent : public entityx::Component<ParentComponent>
 {

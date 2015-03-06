@@ -1,8 +1,8 @@
-# Treent [WIP]
+# [WIP] Treent
 
 Trees within/around an entity+component system.
 
-Based on ideas initially explored inside Pockets/Treent. Provides object lifetime management and a tree structure for grouping related objects.
+Treents decorate Entities to provide a classical syntax for expressing tree-based hierarchies of components. We do this in order to have a natural-feeling way of describing prefabs in code.
 
 ## Main parts:
 
@@ -22,4 +22,4 @@ Trees are good for hierarchical groupings of homogeneous content.
 
 Entities are good for non-hierarchical groupings of heterogeneous content.
 
-Treents are a bit of both; they wire up the hierarchical components and let you add whatever other components you like just like a regular entity.
+Treents are a bit of both; they wire up the hierarchical components and let you add whatever other components you like just like a regular entity. When they fall out of scope, all you lose is the tree-ish interface to the components; the underlying entities contain all the data.

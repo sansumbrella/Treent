@@ -62,7 +62,6 @@
 		BE5EF84FEBBA42C48B97B7A0 /* Event.cc */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Event.cc; path = ../../../lib/entityx/entityx/Event.cc; sourceTree = "<group>"; };
 		CE50F729D5FA4958862D8E0C /* TreeComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TreeComponent.h; path = ../../../src/treent/TreeComponent.h; sourceTree = "<group>"; };
 		F37EDA3C4B8C4005B3808CE7 /* Pool.cc */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; name = Pool.cc; path = ../../../lib/entityx/entityx/help/Pool.cc; sourceTree = "<group>"; };
-		F46A210E0065472BB872A228 /* TreentNodeComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TreentNodeComponent.h; path = ../../../src/treent/TreentNodeComponent.h; sourceTree = "<group>"; };
 		F9610ED1236642B885670461 /* Entity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = ../../../lib/entityx/entityx/Entity.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,7 +117,6 @@
 				154AE3DF1AAA074200C24B10 /* detail */,
 				CE50F729D5FA4958862D8E0C /* TreeComponent.h */,
 				0C9A043A3EAC411B842E8312 /* Treent.h */,
-				F46A210E0065472BB872A228 /* TreentNodeComponent.h */,
 				07B1100B5580477A9E6EE352 /* 2d */,
 				151F3CB11AA10CA900791A43 /* TreentBase.h */,
 				9CB4903A1AA91C6900858BD7 /* ChildrenComponent.h */,

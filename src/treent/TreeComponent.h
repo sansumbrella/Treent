@@ -14,10 +14,15 @@ namespace treent
 /// It generally only makes sense to traverse the tree in one direction, so both ascend()
 /// and descend() use the same compose() method, albeit passing different parameters.
 ///
-/// Note that when destroying a child you will need to manually detach it from its parent
-/// if that behavior is desired. Children are generally assumed to be managed by their parents.
-/// Also, accessing an invalid child will cause an immediate crash (instead of undefined behavior),
-/// making it relatively easy to diagnose problems when children are destroyed before parents.
+/// Note that the relationship between TreeComponents is not automatically cleaned up when
+/// a component is destroyed. Automatically cleaning up would cause a cascade of unnecessary
+/// changes when a parent component was destroyed.
+/// Instead, you can explicitly detach the entity you are destroying before destroying it:
+///
+/// TreentT<Your,Tree,Components>::detachFromParent(entity)
+/// entity.destroy();
+///
+/// The above is only necessary if you might destroy a child before its parent.
 ///
 template <typename Derived>
 struct TreeComponent : public entityx::Component<Derived>

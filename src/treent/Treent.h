@@ -3,7 +3,6 @@
 
 #include "ChildrenComponent.h"
 #include "ParentComponent.h"
-#include "TreentNodeComponent.h"
 #include "TreentBase.h"
 #include "detail/Logging.h"
 
@@ -17,7 +16,6 @@ using entityx::ComponentHandle;
 ///
 /// Treent manages a tree of entities that share a common set of tree components.
 /// Use to create prefab-like objects in your source code.
-/// Stores the entity manager so it can create its entity and child entities.
 ///
 template <typename ... TreeComponents>
 class TreentT : public TreentBase
@@ -25,7 +23,11 @@ class TreentT : public TreentBase
 public:
 
   explicit TreentT(const Entity &entity);
+  /// Factory method for creating a base Treent.
   static TreentT create() { return TreentT(entities().create()); }
+  /// Factory method for creating a derived Treent. Parameters are passed after the entity.
+  template <typename Derived, typename ... Parameters>
+  static Derived create(Parameters&& ... params) { return Derived(entities().create(), std::forward<Parameters>(params)...); }
 
   //
   // Tree growing/pruning methods.
@@ -48,6 +50,10 @@ public:
   /// Remove and destroy all children of Treent.
 	void				destroyChildren();
 
+  /// Detach all Tree components of an entity.
+  static void detachFromParent(Entity &child);
+  void        detachFromParent() { detachFromParent(entity()); }
+
   //
   // Child iteration methods.
   // Use for animating each child with a delay or similar tasks.
@@ -58,10 +64,6 @@ public:
 
   std::vector<Entity>::const_iterator begin() const { return getChildren().begin(); }
   std::vector<Entity>::const_iterator end() const { return getChildren().end(); }
-
-  /// Detach all Tree components.
-  static void detachFromParent(Entity &child);
-  void        detachFromParent() { detachFromParent(entity()); }
 
 private:
   /// Connect child tree components and set parent/children component relationship.
@@ -105,7 +107,8 @@ void TreentT<TreeComponents...>::detachFromParent(entityx::Entity &child)
 {
   auto pc = child.component<ParentComponent>();
 
-  if (pc) {
+  if (pc)
+  {
     pc->_parent.component<ChildrenComponent>()->removeChild(child);
     pc.remove();
     detachTreeComponentFromParent<TreeComponents...>(child);
@@ -117,10 +120,12 @@ void TreentT<TreeComponents...>::removeChild(entityx::Entity &child)
 {
   auto pc = child.component<ParentComponent>();
 
-  if (pc && pc->_parent == entity()) {
+  if (pc && pc->_parent == entity())
+  {
     detachFromParent(child);
   }
-  else {
+  else
+  {
     TREENT_WARN( "Attempt to remove child not belonging to this treent." );
   }
 }
@@ -156,7 +161,8 @@ void TreentT<TreeComponents...>::destroyChildren()
   auto children = cc->_children;
   cc->_children.clear();
 
-	for (auto &child : children) {
+	for (auto &child : children)
+  {
     detachTreeComponentFromParent<TreeComponents...>(child);
 	}
 }
