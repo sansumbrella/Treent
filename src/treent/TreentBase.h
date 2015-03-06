@@ -78,7 +78,7 @@ public:
 
   /// Constructs a Treent that provides a facade to an entity.
   explicit TreentBase(const Entity &entity): _entity(entity) {}
-
+  /// In case you store a pointer/reference to base. (TODO: perf test this to see if it matters at all).
   virtual ~TreentBase() = default;
 
   //
