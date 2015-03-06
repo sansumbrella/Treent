@@ -4,26 +4,14 @@
 
 #include "entityx/Entity.h"
 #include "treent/2d/Treent2d.h"
+#include "treent/TreentBase.h"
+#include "treent/ScopedTreent.h"
 
 #include "cinder/svg/Svg.h"
 
 using namespace ci;
 using namespace ci::app;
 using namespace std;
-
-class ChildClass : public treent::Treent2D
-{
-public:
-  ChildClass (entityx::EntityManager &entities, const std::string &name)
-  : Treent(entities),
-    _name (name)
-  {}
-
-  const std::string& getName() const { return _name; }
-
-private:
-  std::string _name;
-};
 
 class Treent2dApp : public AppNative {
   public:
@@ -33,24 +21,37 @@ class Treent2dApp : public AppNative {
 	void draw() override;
 };
 
+using ScopedTreent = treent::ScopedTreentT<treent::TransformComponent, treent::StyleComponent>;
+
 void Treent2dApp::setup()
 {
   entityx::EventManager events;
   entityx::EntityManager entities(events);
+  treent::SharedEntities::instance().setup(entities);
 
-  auto ent = make_shared<treent::Treent2D>(entities);
-  auto &c = ent->createChild();
+  auto ent = treent::Treent(entities.create());
+  auto c = ent.createChild();
 
   assert( c.hasComponent<treent::TransformComponent>() );
   assert( c.hasComponent<treent::StyleComponent>() );
 
-  auto child = ent->removeChild(&c);
-  ent->appendChild(std::move(child));
+  ent.removeChild(c.entity());
+  ent.removeChild(c.entity());
+  ent.appendChild(c.entity());
 
-  auto &b = c.createChild<ChildClass>("so fair");
-  assert(b.hasComponent<treent::TransformComponent>());
-  assert(b.hasComponent<treent::StyleComponent>());
-  assert(b.getName() == "so fair");
+  assert(ent.hasComponent<treent::TransformComponent>());
+  assert(ent.hasComponent<treent::StyleComponent>());
+
+  auto e = entities.create();
+  {
+    auto scp = ScopedTreent(e);
+    auto b = std::move(scp);
+    assert(e.valid());
+    assert(b.valid());
+    assert(scp.valid() == false);
+  }
+  assert(e.valid() == false);
+
 }
 
 void Treent2dApp::mouseDown( MouseEvent event )
