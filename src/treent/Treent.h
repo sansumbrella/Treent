@@ -167,6 +167,7 @@ void TreentT<TreeComponents...>::destroyChildren()
 	for (auto &child : children)
   {
     detachTreeComponentFromParent<TreeComponents...>(child);
+    child.destroy();
 	}
 }
 
