@@ -21,7 +21,9 @@ template <typename ... TreeComponents>
 class TreentT : public TreentBase
 {
 public:
-
+	/// Constructs an invalid Treent.
+	TreentT() = default;
+	/// Constructs a Treent that wraps an entity.
   explicit TreentT(const Entity &entity);
   /// Factory method for creating a base Treent.
   static TreentT create() { return TreentT(entities().create()); }
@@ -43,15 +45,18 @@ public:
 
   /// Appends a child to Treent, transferring ownership to the parent entity.
   void        appendChild(Entity &child);
+	void				appendChild(const TreentT &child) { appendChild(child.entity()); }
 
   /// Removes child from Treent.
   void        removeChild(Entity &child);
+	void				removeChild(const TreentT &child) { removeChild(child.entity()); }
 
   /// Remove and destroy all children of Treent.
 	void				destroyChildren();
 
   /// Detach all Tree components of an entity.
   static void detachFromParent(Entity &child);
+	static void detachFromParent(const TreentT &child) { detachFromParent(child.entity()); }
   void        detachFromParent() { detachFromParent(entity()); }
 
   //
@@ -60,10 +65,11 @@ public:
   // To manipulate the children, use Systems that act on the relevant Components.
   //
 
-  const std::vector<Entity>& getChildren() const { return component<ChildrenComponent>()->_children; }
+  const std::vector<Entity>& getChildren() { return component<ChildrenComponent>()->_children; }
+	bool isRoot() const { return ! hasComponent<ParentComponent>(); }
 
-  std::vector<Entity>::const_iterator begin() const { return getChildren().begin(); }
-  std::vector<Entity>::const_iterator end() const { return getChildren().end(); }
+  std::vector<Entity>::const_iterator begin() { return getChildren().begin(); }
+  std::vector<Entity>::const_iterator end() { return getChildren().end(); }
 
 private:
   /// Connect child tree components and set parent/children component relationship.
@@ -142,7 +148,7 @@ template <typename ... TreeComponents>
 template <typename Derived, typename ... Parameters>
 Derived TreentT<TreeComponents...>::createChild(Parameters&& ... parameters)
 {
-  auto child = TreentType(entities().create(), std::forward<Parameters>(parameters)...);
+  auto child = Derived(entities().create(), std::forward<Parameters>(parameters)...);
   attachChild(child.entity());
   return child;
 }

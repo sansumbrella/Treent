@@ -87,6 +87,7 @@ public:
 
   /// Returns the underlying entity.
   Entity&             entity() { return _entity; }
+	const Entity&				entity() const { return _entity; }
 
   /// Assign a component to entity, forwards params to the component constructor.
   template <typename C, typename ... Params>
