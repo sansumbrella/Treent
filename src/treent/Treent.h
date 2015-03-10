@@ -45,18 +45,15 @@ public:
 
   /// Appends a child to Treent, transferring ownership to the parent entity.
   void        appendChild(Entity &child);
-	void				appendChild(const TreentT &child) { appendChild(child.entity()); }
 
   /// Removes child from Treent.
   void        removeChild(Entity &child);
-	void				removeChild(const TreentT &child) { removeChild(child.entity()); }
 
   /// Remove and destroy all children of Treent.
 	void				destroyChildren();
 
   /// Detach all Tree components of an entity.
   static void detachFromParent(Entity &child);
-	static void detachFromParent(const TreentT &child) { detachFromParent(child.entity()); }
   void        detachFromParent() { detachFromParent(entity()); }
 
   //

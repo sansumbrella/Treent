@@ -46,14 +46,14 @@ struct ChildrenComponent : public entityx::Component<ChildrenComponent>
   std::vector<entityx::Entity>  _children;
 };
 
-ChildrenComponent::~ChildrenComponent()
+inline ChildrenComponent::~ChildrenComponent()
 {
   for (auto &e : _children) {
     e.destroy();
   }
 }
 
-void ChildrenComponent::removeChild(const entityx::Entity &child)
+inline void ChildrenComponent::removeChild(const entityx::Entity &child)
 {
   auto begin = std::remove_if(_children.begin(), _children.end(), [&](const entityx::Entity &e) { return e == child; });
   _children.erase(begin, _children.end());

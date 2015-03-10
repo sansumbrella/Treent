@@ -50,7 +50,7 @@ private:
   friend class TreentBase;
 };
 
-SharedEntities& SharedEntities::instance()
+inline SharedEntities& SharedEntities::instance()
 {
   static SharedEntities sInstance;
   return sInstance;
