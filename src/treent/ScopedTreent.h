@@ -31,7 +31,7 @@
 
 namespace treent
 {
-
+/*
 ///
 /// ScopedTreents destroy their composed treent when falling out of scope.
 /// They are move-only types.
@@ -60,10 +60,21 @@ public:
   ScopedTreentT(ScopedTreentT &&other)
   : TreentT<T...>(other.entity())
   {
-    other._entity = entityx::Entity();
+    other._entity.invalidate();
+  }
+
+  ScopedTreentT& operator= (ScopedTreentT &&rhs)
+  {
+    if (this->entity())
+    {
+      this->entity().destroy();
+    }
+    this->_entity = rhs._entity;
+    rhs._entity.invalidate();
+    return *this;
   }
 private:
 
 };
-
+*/
 } // namespace treent
