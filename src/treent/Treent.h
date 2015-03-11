@@ -56,6 +56,9 @@ public:
   static void detachFromParent(Entity &child);
   void        detachFromParent() { detachFromParent(entity()); }
 
+	/// Safely destroys an entity that may or may not be a TreentT.
+  static void safeDestroy(Entity &entity) { detachFromParent(entity); entity.destroy(); }
+
   //
   // Child iteration methods.
   // Use for animating each child with a delay or similar tasks.
