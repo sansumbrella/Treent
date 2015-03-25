@@ -54,6 +54,7 @@ public:
   bool isRoot() { return ! _parent; }
   bool isLeaf() { return _children.empty(); }
 
+  Ref getParent() { return _parent; }
 private:
   Ref               _parent;
   std::vector<Ref>  _children;
