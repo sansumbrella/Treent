@@ -68,8 +68,10 @@ public:
   const std::vector<Entity>& getChildren() { return component<ChildrenComponent>()->_children; }
 	bool isRoot() const { return ! hasComponent<ParentComponent>(); }
 
-  /// Recursively visit all of this Treent's descendants, passing each to \a fn.
+  /// Recursively visit this Treend and all of its descendants, passing each to \a fn.
   void visit(const std::function<void (TreentT)> &fn);
+	/// Recursively visit all of this Treent's descendants, passing each to \a fn.
+	void visitChildren(const std::function<void (TreentT)> &fn);
 
   std::vector<Entity>::const_iterator begin() { return getChildren().begin(); }
   std::vector<Entity>::const_iterator end() { return getChildren().end(); }
@@ -102,10 +104,16 @@ TreentT<TreeComponents...>::TreentT(const Entity &entity)
 template <typename ... TreeComponents>
 void TreentT<TreeComponents...>::visit(const std::function<void (TreentT<TreeComponents...>)> &fn)
 {
+  fn(*this);
+  visitChildren(fn);
+}
+
+template <typename ... TreeComponents>
+void TreentT<TreeComponents...>::visitChildren(const std::function<void (TreentT<TreeComponents...>)> &fn)
+{
   for (const auto &child : getChildren())
   {
     auto tc = TreentT(child);
-    fn(tc);
     tc.visit(fn);
   }
 }
