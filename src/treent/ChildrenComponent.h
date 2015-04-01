@@ -49,7 +49,9 @@ struct ChildrenComponent : public entityx::Component<ChildrenComponent>
 inline ChildrenComponent::~ChildrenComponent()
 {
   for (auto &e : _children) {
-    e.destroy();
+		if( e ) {
+			e.destroy();
+		}
   }
 }
 
