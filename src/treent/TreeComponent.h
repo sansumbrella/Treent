@@ -31,6 +31,16 @@ public:
   /// Cast to derived type.
   Derived& self() { return static_cast<Derived&>(*this); }
 
+	/// Remove self from parent on destruction.
+	/// Also tell children we are no longer their parent.
+	virtual ~TreeComponent()
+	{
+		for( auto &child : _children ) {
+			child->_parent = Ref();
+		}
+		detachFromParent();
+	}
+
   using Ref = entityx::ComponentHandle<Derived>;
 
   /// Associate a child component with a parent component.
