@@ -87,7 +87,10 @@ void TreeComponent<D>::removeChild(D *child)
 
   auto comp = [child] (Ref &b)
   {
-    return b.get() == child;
+		if( b.valid() ) {
+			return b.get() == child;
+		}
+		return true;
   };
 
   _children.erase(std::remove_if(_children.begin(), _children.end(), comp), _children.end());
@@ -106,7 +109,7 @@ void TreeComponent<D>::removeChildren()
 template <typename D>
 void TreeComponent<D>::detachFromParent()
 {
-  if (_parent)
+  if (_parent.valid())
   {
     _parent->removeChild(&self());
     _parent = Ref();

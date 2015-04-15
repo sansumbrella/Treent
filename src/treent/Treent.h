@@ -215,7 +215,10 @@ template <typename ... TreeComponents>
 template <typename C>
 void TreentT<TreeComponents...>::detachTreeComponentFromParent(Entity &child)
 {
-  child.component<C>()->detachFromParent();
+	auto c = child.component<C>();
+	if( c ) {
+		c->detachFromParent();
+	}
 }
 
 template <typename ... TreeComponents>
